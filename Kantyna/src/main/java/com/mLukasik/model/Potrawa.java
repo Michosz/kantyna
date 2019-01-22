@@ -1,12 +1,18 @@
 package com.mLukasik.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -22,7 +28,7 @@ public class Potrawa
 	private int id;
 	
 	@Column(name = "cena")
-	private int cena;
+	private double cena;
 	
 	@Column(name = "czy_jest_dostepna")
 	private boolean czyJestDostepna;
@@ -46,13 +52,41 @@ public class Potrawa
 	@JoinColumn(name = "id_rodzaju", nullable = false)
 	private RodzajPotrawy rodzajPotrawy;
 	
+	@OneToMany(mappedBy="potrawa")
+	private List<Komentarz> listaKomentarzy = new ArrayList<Komentarz>();
 	//dodac one to one (nie pamietam o co chodzilo)
+
+	/*@ManyToMany(mappedBy = "listaPotraw")
+    private List<Zamowienie> listaZamowien = new ArrayList<Zamowienie>();*/
 	
+	@OneToMany(mappedBy="potrawa")
+	private List<Potrawy_Zamowienia> potrawy_zamowienia = new ArrayList<Potrawy_Zamowienia>();
+	
+	public List<Potrawy_Zamowienia> getPotrawy_zamowienia() 
+	{
+		return potrawy_zamowienia;
+	}
+
+	public void setPotrawy_zamowienia(List<Potrawy_Zamowienia> potrawy_zamowienia)
+	{
+		this.potrawy_zamowienia = potrawy_zamowienia;
+	}
+
+	public List<Komentarz> getListaKomentarzy() 
+	{
+		return listaKomentarzy;
+	}
+
+	public void setListaKomentarzy(List<Komentarz> listaKomentarzy) 
+	{
+		this.listaKomentarzy = listaKomentarzy;
+	}
+
 	public String getNazwa() 
 	{
 		return nazwa;
 	}
-
+	
 	public void setNazwa(String nazwa) 
 	{
 		this.nazwa = nazwa;
@@ -108,12 +142,12 @@ public class Potrawa
 		this.id = id;
 	}
 
-	public int getCena() 
+	public double getCena() 
 	{
 		return cena;
 	}
 
-	public void setCena(int cena)
+	public void setCena(double cena)
 	{
 		this.cena = cena;
 	}

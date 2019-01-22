@@ -32,7 +32,7 @@ public class Parametry
 	
 	@Transient
 	private String godzinaZ;
-
+	
 	public String getGodzinaO() 
 	{
 		return godzinaO;

@@ -53,7 +53,8 @@
 </head>
 
 <body style="background-color:#d1e1bf">
-
+	<%@include file="/WEB-INF/menu.incl" %>
+	
 	<div id="first">
 	</div>
 	<div id="second">
@@ -62,36 +63,6 @@
 			<font size="5"> <strong><s:message code="page.rejestracja.Tytul"/></strong> </font>
 		</div>
 	</div>
-	
-	<div id="third">
-		<form action="/welcome" method="GET">
-			<button type="submit" class="btn btn-primary"><s:message code="page.ReturnButton"/></button>
-		</form>
-		
-		<c:set var="localeCode" value="${pageContext.response.locale}" />
-		<c:choose>
-			<c:when test="${localeCode == 'pl'}">
-				<a class="btn btn-outline-success"
-					href="?lang=en">EN</a>
-			</c:when>
-			<c:when test="${localeCode == 'en'}">
-				<a class="btn btn-outline-success"
-					href="?lang=pl">PL</a>
-			</c:when>
-		</c:choose>
-	</div>
-	
-	<div id="third2">
-		<div align="right">
-			<sec:authorize access="isAuthenticated()">
-				<form action="/logout" method="post">
-					<b><s:message code="page.welcome.Zalogowany"/>${Uzytkownik} </b>
-					<button type="submit" class="btn btn-primary" name="${_csrf.parameterName}" value="${_csrf.token}"><s:message code="page.Wyloguj"/></button>
-				</form>
-			</sec:authorize>
-		</div>
-	</div>
-	
 	
 	<div id="fourth">
 		<form:form action="rejestracja" method="POST" modelAttribute="Uzytkownik">

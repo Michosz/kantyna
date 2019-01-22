@@ -7,5 +7,6 @@ import com.mLukasik.model.Potrawa;
 public interface PotrawaRepository extends CrudRepository<Potrawa, Integer>
 {
 	List<Potrawa> findById(int id);
+	List<Potrawa> findByNazwa(String nazwa);
 	List<Potrawa> findAll();
 }

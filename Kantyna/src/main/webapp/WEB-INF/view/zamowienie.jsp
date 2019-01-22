@@ -63,95 +63,62 @@ pageEncoding="UTF-8"%>
 	}
 	
 	.hide
-	 {
+	{
 	    display: none;
 	}
-	
-	.clear 
-	{
-	    float: none;
-	    clear: both;
-	}
-	
 	</style>
-	
-	<script>
-		function zwalnianie(id)
-		{
-			swal({ 
-			    title: '<s:message code="page.stoliki.ZwalnianieStolika"/>',   
-			    text: '<s:message code="page.stoliki.PytanieZwalnianie"/>',   
-			    type: "question",   
-			    showCancelButton: true,   
-			    confirmButtonColor: "#DD6B55",   
-			    confirmButtonText: '<s:message code="page.main.Tak"/>',   
-			    cancelButtonText: '<s:message code="page.main.Nie"/>',   
-			    closeOnConfirm: false,   
-			    closeOnCancel: false }).then((result) => {
-				if(result.value)
-				{
-					document.querySelector('#zwolnij').submit();
-				}
-				else
-				{
-					swal('<s:message code="page.stoliki.Anulowane"/>'/*, "success"*/);
-					return false;
-				}})
-		}
-	</script>
+
 </head>
 
 <body style="background-color:#d1e1bf">
 	<%@include file="/WEB-INF/menu.incl" %>
 	
-	<c:choose>
-		<c:when test="${param.zwolniony == '1'}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.stoliki.StolikZwolniony"/></b></div>
-		</c:when>
-	</c:choose>
-	
-	<table class="table table-bordered table-striped table-dark" id="potrawy">
-		<thead>
-			<tr>
-				<th><s:message code="page.stoliki.Nazwa"/></th>
-				<th><s:message code="page.stoliki.IloscMiejsc"/></th>
-				<th><s:message code="page.stoliki.czyJestZajety"/></th>
-				<th></th>
-			</tr>
-		</thead>
-		<c:forEach items="${listaStolikow}" var="stolik">
-		<tr>
-			<td>
-				<c:out value="${stolik.nazwa}" />
-			</td>
-			<td>
-				<c:out value="${stolik.iloscMiejsc}" />
-			</td>
-			<td>
-				<c:choose>
-					<c:when test="${stolik.czyJestZajety}">
-						<s:message code="page.stoliki.Tak"/>
-					</c:when>
-					<c:otherwise>
-						<s:message code="page.stoliki.Nie"/>
-					</c:otherwise>
-				</c:choose>
-			</td>
-			<td>
-				<c:if test="${stolik.czyJestZajety}">
-					<form:form id="zwolnij" action="zwolnij?par=${stolik.idStolika}" method="POST" onsubmit="return zwalnianie(${stolik.idStolika}) ? true : false;">	
-						<button class="btn btn-primary" name=dodaj value="DodajA"><s:message code="page.stoliki.Zwolnij"/></button>
-					</form:form>				
+	<form:form action="zamowienie" method="POST" modelAttribute="Zamowienie">
+		<table class="table table-bordered table-striped table-dark">
+			<thead>
+				<tr>
+					<th><s:message code="page.main.Obrazek"/></th>
+					<th><s:message code="page.main.Nazwa"/></th>
+					<th><s:message code="page.main.Cena"/></th>
+					<th><s:message code="page.main.Rodzaj"/></th>
+					<th><s:message code="page.zamowienie.Ilosc"/></th>
+				</tr>
+			</thead>
+			<c:forEach items="${potrawy}" var="potrawa" varStatus="liczmik">
+				<c:if test="${potrawa.czyJestDostepna}">
+				<tr>
+					<td>
+						<img  src="data:potrawa/jpeg;base64,${potrawa.base64}" width="200" height="200" />
+					</td>
+					<td>
+						<c:out value="${potrawa.nazwa}" />
+					</td>
+					<td>
+						<c:out value="${potrawa.cena}" />
+					</td>
+					<td>
+						<c:out value="${potrawa.rodzajPotrawy.rodzaj}" />
+					</td>
+					<td>
+						<form:input type="number" class="form-control" path="listaIlosci" value="0" name="ilosc" placeholder="ilosc"/>
+						<form:input type="number" class="form-control" path="listaPotraw" value="${potrawa.id}" name="ktoraPot" placeholder="cena" style="display: none"/>
+					</td>
+				</tr>
 				</c:if>
-				<c:if test="${not stolik.czyJestZajety}">
-					<form:form id="zwolnij2" action="zwolnij?par=${stolik.idStolika}" method="POST" onsubmit="return zwalnianie(${stolik.idStolika}) ? true : false;">	
-						<button class="btn btn-primary" name=dodaj value="DodajA" disabled><s:message code="page.stoliki.Zwolnij"/></button>
-					</form:form>	
-				</c:if>
-			</td>
-		</tr>
-		</c:forEach>
-	</table>
-		
+			</c:forEach>
+				
+			</table>
+			
+			<div class="form-group row">
+				<label for="Login" class="col-4 col-form-label"><strong><s:message code="page.stoliki.IloscMiejsc"/>:</strong></label>
+				<div class="col-8">
+					<form:input type="number" class="form-control" path="iloscMiejsc" name="iloscMiejsc" placeholder=""/>
+				</div>
+			</div>
+			
+			<div align="center">
+				<button type="submit" class="btn btn-primary btn-lg" name=szukaj value="Szukaj"><s:message code="page.zamowienie.Zloz"/></button>
+			</div>
+		</form:form>	
 </body>
 </html>
