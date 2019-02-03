@@ -1,0 +1,89 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#"><s:message code="page.main.Kantyna"/></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/"><s:message code="page.main.Glowna"/><span class="sr-only">(current)</span></a>
+      </li>
+      <sec:authorize access="hasRole('ANONYMOUS')">
+		<li class="nav-item">
+			<a class="nav-link" href="/rejestracja"><s:message code="page.welcome.RegisterButton" /></a>
+		</li>
+	   </sec:authorize>
+	   <sec:authorize access="hasRole('MANAGER')">
+	      <li class="nav-item dropdown">
+	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	        	<s:message code="nav.ZarzMenu"/>
+	        </a>
+	        <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+	          <a class="dropdown-item" href="/nowa-potrawa" style="color: grey"> <s:message code="nav.NowaPotrawa"/></a>
+	          <a class="dropdown-item" href="#test12" style="color: grey"> <s:message code="nav.UsunZmenu"/></a>
+	          <div class="dropdown-divider"></div>
+	          	<a class="dropdown-item" href="#fajne">Something else here</a>
+	          </div>
+	      </li>
+      </sec:authorize>
+      <sec:authorize access="hasRole('MANAGER')">
+      	<li class="nav-item dropdown">
+	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	        	<s:message code="nav.ZarzStolikami"/>
+	        </a>
+	        <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+	          <a class="dropdown-item" href="/nowy-stolik" style="color: grey"> <s:message code="nav.NowyStolik"/></a>
+	          <a class="dropdown-item" href="/stoliki" style="color: grey"> <s:message code="nav.ListaStolikow"/></a>
+	        </div>
+	      </li>
+      </sec:authorize>
+       <sec:authorize access="isAuthenticated()">
+      	<li class="nav-item dropdown">
+	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	        	<s:message code="nav.Zamowienia"/>
+	        </a>
+	        <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+	          <a class="dropdown-item" href="/zamowienia" style="color: grey"> <s:message code="nav.PokazZamowienia"/></a>
+	           <sec:authorize access="hasRole('KLIENT')">
+	           	  <a class="dropdown-item" href="/zamowienie" style="color: grey"> <s:message code="nav.ZlozZamowienie"/></a>
+	           </sec:authorize>
+	        </div>
+	      </li>
+      </sec:authorize>
+      <sec:authorize access="hasRole('MANAGER')">
+  	  	<li class="nav-item active">
+    		<a class="nav-link" href="/parametry"><s:message code="page.main.Parametry"/></a>
+  		</li>
+      </sec:authorize>
+      <c:set var="localeCode" value="${pageContext.response.locale}" />
+	  	<c:choose>
+			<c:when test="${localeCode == 'pl'}">
+				<li class="nav-item">
+					<a class="nav-link" href="?lang=en">EN</a>
+				</li>
+			</c:when>
+			<c:when test="${localeCode == 'en'}">
+				<li class="nav-item">
+					<a class="nav-link" href="?lang=pl">PL</a>
+				</li>
+			</c:when>
+		 </c:choose>
+      </ul>
+    <sec:authorize access="hasRole('ANONYMOUS')">
+		<form class="form-inline" action="/logowanie">
+			<button type="submit" class="btn btn-dark my-2 my-sm-0">
+				<s:message code="page.welcome.LoginButton"/>
+			</button>
+		</form>
+	  </sec:authorize>
+	<sec:authorize access="isAuthenticated()">
+		<form class="form-inline" action="/logout" method="post">
+			<a class="nav-link disabled" class="form-control mr-sm-2" style="color: white"><strong><s:message code="page.main.Zalogowany"/> ${uzytkownik}</strong></a>
+			<button type="submit" class="btn btn-dark my-2 my-sm-0" name="${_csrf.parameterName}" value="${_csrf.token}">
+				<s:message code="page.Wyloguj"/>
+			</button>
+		</form>
+	</sec:authorize>
+  </div>
+</nav>

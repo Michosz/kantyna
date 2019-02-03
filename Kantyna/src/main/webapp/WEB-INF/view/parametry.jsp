@@ -10,7 +10,14 @@
 
 <html>
 <head>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+	<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.6.3/css/all.css' integrity='sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/' crossorigin='anonymous'>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
+  	<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css'>
 	<style style="text/css">
 	div#first
 	{
@@ -21,13 +28,6 @@
 		background-size: cover;
 		opacity:0.6;
 	}
-	div#second
-	{
-		opacity:1;
-		position:absolute;
-		top: 0;
-		left:42%;
-	}
 	div#third
 	{
 		opacity:1;
@@ -37,69 +37,25 @@
 	}
 	div#fourth
 	{
-		opacity:1;
-		position:absolute;
-		top: 30%;
-		left:40%;
-	}
-	div#third2
-	{
-		opacity:1;
-		position:absolute;
-		top: 10%;
-		left:93.5%;
+		margin-top: 170px;
 	}
 	</style>
 </head>
 
 <body style="background-color:#d1e1bf">
+<%@include file="/WEB-INF/menu.incl" %>
 
 	<div id="first">
 	</div>
-	<div id="second">
-		<font size="7" color = "blue">Kantyna</font>
-		<div align="center">
-			<font size="5"> <strong><s:message code="page.parametry.Tytul"/></strong> </font>
-		</div>
-	</div>
 	
-	<div id="third">
-		<form action="/main" method="GET">
-			<button type="submit" class="btn btn-primary"><s:message code="page.ReturnButton"/></button>
-		</form>
-		
-		<c:set var="localeCode" value="${pageContext.response.locale}" />
-		<c:choose>
-			<c:when test="${localeCode == 'pl'}">
-				<a class="btn btn-outline-success"
-					href="?lang=en">EN</a>
-			</c:when>
-			<c:when test="${localeCode == 'en'}">
-				<a class="btn btn-outline-success"
-					href="?lang=pl">PL</a>
-			</c:when>
-		</c:choose>
-	</div>
-	
-	<div id="third2">
-		<div align="right">
-			<sec:authorize access="isAuthenticated()">
-				<form action="/logout" method="post">
-					<b><s:message code="page.welcome.Zalogowany"/>${uzytkownik} </b>
-					<button type="submit" class="btn btn-primary" name="${_csrf.parameterName}" value="${_csrf.token}"><s:message code="page.Wyloguj"/></button>
-				</form>
-			</sec:authorize>
-		</div>
-	</div>
-	
-	<div id="fourth">
+	<div id=fourth>
 		<form:form action="parametry" method="POST" modelAttribute="Parametry">
 			
 			<s:message code="page.parametry.GodzinaOtwarcia" var="godzinaOtwar"/>
 			
-			<div class="form-group row">
-				<label for="Imie" class="col-4 col-form-label"><strong>${godzinaOtwar}:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Imie" class="col-md-2 offset-md-3 col-form-label" style="text-align: right"><strong>${godzinaOtwar}:</strong></label>
+				<div class="col-3">
 					<form:input type="text" path="godzinaO" class="form-control" name="godzinaOtwarcia" value="${wartosci.godzinaOtwarcia}" placeholder="${godzinaOtwar}"/>
 					<sf:errors path="godzinaO" class="text-danger" />
 				</div>
@@ -107,20 +63,30 @@
 			
 			<s:message code="page.parametry.GodzinaZamkniecia" var="godzinaZam"/>
 			
-			<div class="form-group row">
-				<label for="Nazwisko" class="col-4 col-form-label"><strong>${godzinaZam}:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Nazwisko" class="col-md-2 offset-md-3 col-form-label" style="text-align: right"><strong>${godzinaZam}:</strong></label>
+				<div class="col-3">
 					<form:input type="text" class="form-control" path="godzinaZ" name="godzinaZamkniecia" value="${wartosci.godzinaZamkniecia}" placeholder="${godzinaZam}"/>
 					<sf:errors path="godzinaZ" class="text-danger" />
 				</div>
 			</div>
 		
-			<div class="form-group row">
-				<label for="Login" class="col-4 col-form-label"><strong><s:message code="page.parametry.SzukanieStolika"/>:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Login" class="col-md-2 offset-md-3 col-form-label" style="text-align: right"><strong><s:message code="page.parametry.SzukanieStolika"/>:</strong></label>
+				<div class="col-3">
 					<form:input type="number" class="form-control" path="szukanieStolika" name="szukanieStolika" value="${wartosci.szukanieStolika}" placeholder=""/>
 					<sf:errors path="szukanieStolika" class="text-danger" />
 				</div>
+			</div>
+				
+			<div class="form-group row" style="width: 100%;">
+				<label for="Login" class="col-md-2 offset-md-3 col-form-label" style="text-align: right"><strong><s:message code="page.parametry.czyZamkniete"/>:</strong></label>
+				<div class="col-3">
+					<span class="btn btn-success active" onclick="zaznacz()" style="height: 40px; width: 40px">
+						<i id="zaznaczony" class=""></i>
+					</span>
+		 			<form:checkbox id="checkbox" path="czyZamkniete" style="display: none" checked="${wartosci.czyZamkniete}"/>
+			 	</div>
 			</div>
 		
 		<div align="center">
@@ -128,6 +94,30 @@
 		</div>
 	</form:form>
 	</div>
+	
+	<script>
+		$(document).ready(function() 
+		{
+			if( ${wartosci.czyZamkniete} == true)
+			{
+				document.getElementById("zaznaczony").className = "fas fa-check";
+			}
+		});
+	
+		function zaznacz() 
+		{
+			if(document.getElementById("zaznaczony").className  == "fas fa-check")
+			{
+				document.getElementById("zaznaczony").className  = "";
+				document.getElementById("checkbox").checked = false;
+			}
+			else if(document.getElementById("zaznaczony").className  == "")
+			{
+				document.getElementById("zaznaczony").className  = "fas fa-check";
+				document.getElementById("checkbox").checked = true;
+			}
+		}
+	</script>
 </body>
 
 </html>
