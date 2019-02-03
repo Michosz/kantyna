@@ -37,7 +37,7 @@ import com.mLukasik.validator.StolikValidator;
 import com.mLukasik.validator.UzytkownikValidator;
 import com.mLukasik.validator.ZamowienieValidator;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
