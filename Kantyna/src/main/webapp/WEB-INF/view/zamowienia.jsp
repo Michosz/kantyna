@@ -72,11 +72,31 @@ pageEncoding="UTF-8"%>
 	    float: none;
 	    clear: both;
 	}
-	
 	</style>
 	
 	<script>
-		
+		function zatwierdzanie(id)
+		{
+			swal({ 
+		    title: '<s:message code="page.zamowienia.Zatwierdzanie"/>',   
+		    text: '<s:message code="page.zamowienia.PytanieZatwierdzanie"/>',   
+		    type: "question",   
+		    showCancelButton: true,   
+		    confirmButtonColor: "#DD6B55",   
+		    confirmButtonText: '<s:message code="page.main.Tak"/>',   
+		    cancelButtonText: '<s:message code="page.main.Nie"/>',   
+		    closeOnConfirm: false,   
+		    closeOnCancel: false }).then((result) => {
+			if(result.value)
+			{
+				document.getElementById("zatwierdz" + id).submit();
+			}
+			else
+			{
+				swal('<s:message code="page.main.Anulowane"/>'/*, "success"*/);
+				return false;
+			}})
+		}
 	</script>
 </head>
 
@@ -88,6 +108,10 @@ pageEncoding="UTF-8"%>
 			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.stoliki.StolikZwolniony"/></b></div>
 		</c:when>
 	</c:choose>-->
+	
+	<c:if test="${param.zamZatwierdzone == '1'}">
+		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
+	</c:if>
 	
 	<table class="table table-bordered table-striped table-dark" id="zamowienia">
 		<thead>
@@ -114,11 +138,17 @@ pageEncoding="UTF-8"%>
 				<c:out value="${zamowienie.stolik.nazwa}" />
 			</td>
 			<td>
-				<c:if test="${czyZrealizowane}">
+				<c:if test="${zamowienie.czyZrealizowane}">
 					<s:message code="page.main.Tak"/>
+					<form:form id="zatwierdz${zamowienie.id}" class="zmienStatus" action="zatwierdzZamowienie?par=${zamowienie.id}" method="POST" onsubmit="return zatwierdzanie(${zamowienie.id}) ? true : false;">	
+						<button class="btn btn-primary" disabled name=dodaj value="DodajA"><s:message code="page.zamowienia.Zrealizuj"/></button>
+					</form:form>		
 				</c:if>
-				<c:if test="${not czyZrealizowane}">
+				<c:if test="${not zamowienie.czyZrealizowane}">
 					<s:message code="page.main.Nie"/>
+					<form:form id="zatwierdz${zamowienie.id}" class="zmienStatus" action="zatwierdzZamowienie?par=${zamowienie.id}" method="POST" onsubmit="return zatwierdzanie(${zamowienie.id}) ? true : false;">	
+						<button class="btn btn-primary" name=dodaj value="DodajA"><s:message code="page.zamowienia.Zrealizuj"/></button>
+					</form:form>		
 				</c:if>
 			</td>
 			<td>

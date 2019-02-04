@@ -30,10 +30,7 @@
 	}
 	div#fourth
 	{
-		opacity:1;
-		position:absolute;
-		top: 30%;
-		left:40%;
+		margin-top: 170px;
 	}
 	div#third2
 	{
@@ -55,53 +52,53 @@
 		<form:form action="rejestracja" method="POST" modelAttribute="Uzytkownik">
 			
 			<s:message code="page.klienci.Imie" var="mimie"/>
-			<div class="form-group row">
-				<label for="Imie" class="col-4 col-form-label"><strong><s:message code="page.klienci.Imie"/>:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Imie" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.klienci.Imie"/>:</strong></label>
+				<div class="col-3">
 					<form:input type="text" path="imie" class="form-control" name="imie" placeholder="${mimie}"/>
 					<sf:errors path="Imie" class="text-danger" />
 				</div>
 			</div>
 			
 			<s:message code="page.klienci.Nazwisko" var="mnazwisko"/>
-			<div class="form-group row">
-				<label for="Nazwisko" class="col-4 col-form-label"><strong>${mnazwisko}:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Nazwisko" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong>${mnazwisko}:</strong></label>
+				<div class="col-3">
 					<form:input type="text" class="form-control" path="nazwisko" name="nazwisko" placeholder="${mnazwisko}"/>
 					<sf:errors path="Nazwisko" class="text-danger" />
 				</div>
 			</div>
 		
-			<div class="form-group row">
-				<label for="Login" class="col-4 col-form-label"><strong><s:message code="page.logowanie.Login"/>:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Login" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.logowanie.Login"/>:</strong></label>
+				<div class="col-3">
 					<form:input type="text" class="form-control" path="login" name="login"  placeholder="Login"/>
 					<sf:errors path="Login" class="text-danger" />
 				</div>
 			</div>
 			
 			<s:message code="page.logowanie.Haslo" var="mhaslo"/>
-			<div class="form-group row">
-				<label for="Haslo" class="col-4 col-form-label"><strong>${mhaslo}:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Haslo" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong>${mhaslo}:</strong></label>
+				<div class="col-3">
 					<form:input type="password" class="form-control" path="haslo" name="haslo" placeholder="${mhaslo}"/>
 					<sf:errors path="Haslo" class="text-danger" />
 				</div>
 			</div>
 			
-			<div class="form-group row">
-				<label for="Telefon" class="col-4 col-form-label"><strong><s:message code="page.klienci.Telefon"/>:</strong></label>
-				<div class="col-8">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Telefon" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.klienci.Telefon"/>:</strong></label>
+				<div class="col-3">
 					<form:input type="tel" class="form-control" path="telefon" name="telefon" placeholder="xxx-xxx-xxx"/>
 					<sf:errors path="Telefon" class="text-danger" />
 				</div>
 			</div>
 			
 			<sec:authorize access="isAuthenticated() and hasRole('ROLE_MANAGER')">
-			    <div class="form-group row">
-					<label for="Rola" class="col-4 col-form-label"><strong><s:message code="page.rejestracja.Rola"/></strong></label>
-					<div class="col-8">
-						<sf:select items="${lista}" path="rola" required="required" name="rola" placeholder="rola" class="form-control"/>
+			    <div class="form-group row" style="width: 100%;">
+					<label for="Rola" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.rejestracja.Rola"/></strong></label>
+					<div class="col-3">
+						<sf:select items="${lista}" path="rolaa" required="required" name="rola" placeholder="rola" class="form-control"/>
 					</div>
 				</div>
 			</sec:authorize>

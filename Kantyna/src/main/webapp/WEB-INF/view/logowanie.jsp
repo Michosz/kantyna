@@ -13,13 +13,6 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
 	<style style="text/css">
 		
-	div#second
-	{
-		opacity:1;
-		position:absolute;
-		top: 0;
-		left:42%;
-	}
 	div#third
 	{
 		opacity:1;
@@ -29,10 +22,7 @@
 	}
 	div#fourth
 	{
-		opacity:1;
-		position:absolute;
-		top: 30%;
-		left:40%;
+		 margin-top: 170px;
 	}
 	div#fifth
 	{
@@ -54,12 +44,6 @@
 <body style="background-color:#d1e1bf">
 	<%@include file="/WEB-INF/menu.incl" %>
 	
-	<div id="second">
-		<div align="center">
-			<font size="5"> <strong><s:message code="page.logowanie.Tytul"/></strong> </font>
-		</div>
-	</div>
-	
 	<div id="sixth">
 		<c:if test="${param.error == '1'}">
 			<c:if test="${SPRING_SECURITY_LAST_EXCEPTION.message == 'User is disabled'}">
@@ -78,16 +62,16 @@
 	
 	<div id="fourth">
 		<form:form action="/logowanie" method="POST">
-			<div class="form-group row">
-				<label for="Login" class="col-3 col-form-label"><strong><s:message code="page.logowanie.Login"/>:</strong></label>
-				<div class="col-9">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Login" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.logowanie.Login"/>:</strong></label>
+				<div class="col-3">
 					<input id="pole1" type="text" class="form-control" name="login" id="login" placeholder=<s:message code="page.logowanie.Login"/>>
 				</div>
 			</div>
 		
-			<div class="form-group row">
-				<label for="Haslo" class="col-3 col-form-label"><strong><s:message code="page.logowanie.Haslo"/>:</strong></label>
-				<div class="col-9">
+			<div class="form-group row" style="width: 100%;">
+				<label for="Haslo" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.logowanie.Haslo"/>:</strong></label>
+				<div class="col-3">
 					<input id="pole2" type="password" class="form-control" name="haslo" id="haslo" placeholder=<s:message code="page.logowanie.Haslo"/>>
 				</div>
 			</div>

@@ -56,6 +56,11 @@
     		<a class="nav-link" href="/parametry"><s:message code="page.main.Parametry"/></a>
   		</li>
       </sec:authorize>
+      <sec:authorize access="hasRole('MANAGER')">
+      	<li class="nav-item active">
+      		<a class="nav-link" href="/rejestracja"><s:message code="nav.StworzKonto"/></a>
+      	</li>
+      </sec:authorize>
       <c:set var="localeCode" value="${pageContext.response.locale}" />
 	  	<c:choose>
 			<c:when test="${localeCode == 'pl'}">

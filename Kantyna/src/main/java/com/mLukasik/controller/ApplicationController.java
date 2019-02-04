@@ -36,9 +36,6 @@ import com.mLukasik.validator.PotrawaValidator;
 import com.mLukasik.validator.StolikValidator;
 import com.mLukasik.validator.UzytkownikValidator;
 import com.mLukasik.validator.ZamowienieValidator;
-
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -123,7 +120,7 @@ public class ApplicationController
 		{
 			model.addAttribute("noweZamowienia", true);
 		}
-		List<Zamowienie> niewidzianeZatwierdzoneZamowienia = zamowienieRepository.findByCzyKlientWidzialZatwierdzoneZamowienieFalseAndCzyJestZatwierdzonePrzezManageraTrue();
+		List<Zamowienie> niewidzianeZatwierdzoneZamowienia = zamowienieRepository.findByCzyKlientWidzialZatwierdzoneZamowienieFalseAndCzyJestZatwierdzonePrzezManageraTrueAndUzytkownikLogin(auth.getName());
 		if(niewidzianeZatwierdzoneZamowienia.size() > 0)
 		{
 			model.addAttribute("nowePotwierdzenia", true);
@@ -143,11 +140,14 @@ public class ApplicationController
 	public ModelAndView Rejestracja(HttpServletRequest request, Model model)
 	{
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	    model.addAttribute("user", auth.getName());
+	    model.addAttribute("uzytkownik", auth.getName());
+	    List<Rola> role = new ArrayList<Rola>();
+	    role = rolaRepository.findAll();
 		ArrayList<String> lista = new ArrayList<String>();
-		lista.add("KLIENT");
-		lista.add("MANAGER");
-		lista.add("ADMIN");
+		for(Rola rola: role)
+		{
+			lista.add(rola.getRola().replace("ROLE_", ""));
+		}
 		model.addAttribute("lista", lista);
 		return new ModelAndView("rejestracja", "Uzytkownik", new Uzytkownik());
 	}
@@ -168,30 +168,27 @@ public class ApplicationController
 			czyTelefonIstnieje = true;
 		}
 		new UzytkownikValidator(czyLoginIstnieje, czyTelefonIstnieje).validate(uzytkownik, result);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(result.hasErrors())
 		{
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		    model.addAttribute("uzytkownik", auth.getName());
+		    List<Rola> role = new ArrayList<Rola>();
+		    role = rolaRepository.findAll();
 			ArrayList<String> lista = new ArrayList<String>();
-			lista.add("KLIENT");
-			lista.add("MANAGER");
+			for(Rola rola: role)
+			{
+				lista.add(rola.getRola().replace("ROLE_", ""));
+			}
 			model.addAttribute("lista", lista);
 			return "rejestracja";
 		}
-		
-		if(uzytkownik.getRola() != null)
+		List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
+		if(authorities.get(0).getAuthority().contains("ROLE_MANAGER"))
 		{
-			if(uzytkownik.getRola().getRola().equals("MANAGER"))
-			{
-				Rola rola = rolaRepository.findByRola("ROLE_MANAGER").get(0);
-				uzytkownik.setRola(rola);
-			}
-			else if(uzytkownik.getRola().getRola().equals("KLIENT"))
-			{
-				Rola rola = rolaRepository.findByRola("ROLE_KLIENT").get(0);
-				uzytkownik.setRola(rola);
-			}
-			
+			String pelnaRola = "ROLE_" + uzytkownik.getRolaa();
+			System.out.println(pelnaRola);
+			Rola rola = rolaRepository.findByRola(pelnaRola).get(0);
+			uzytkownik.setRola(rola);
 		}
 		else
 		{
@@ -446,7 +443,6 @@ public class ApplicationController
 		return new ModelAndView("komentarz", "Komentarz", new Komentarz());
 	}*/
 	
-	//dokonczyc, jesli zadna gwiazdka nie jest zaznaczona to ocena = null
 	@PostMapping(value = "/")
 	public String dodajKomentarz(@ModelAttribute("Komentarz") Komentarz komentarz, BindingResult result, RedirectAttributes redir, Model model)
 	{
@@ -512,7 +508,6 @@ public class ApplicationController
 		return new ModelAndView("zamowienie", "Zamowienie", new Zamowienie());
 	}
 	
-	//wstepnie dziala, dodac validacje
 	//uwaga co do braku komentarzy, albo disablowac przycisk, albo dorobic argument w funkcji w javascript i na podstawie tego wyswietlic komunikat, bez javascriptu niestety sie nie da
 	@PostMapping(value = "/zamowienie")
 	public String dodajZamowienie(@ModelAttribute("Zamowienie") Zamowienie zamowienie, BindingResult result, RedirectAttributes redir, Model model)
@@ -529,7 +524,7 @@ public class ApplicationController
 		{
 			pusteZamowienie = true;
 		}
-		new ZamowienieValidator(listaStolikow.size(), pusteZamowienie).validate(zamowienie, result);
+		new ZamowienieValidator(listaStolikow.size(), pusteZamowienie, listaP.get(0)).validate(zamowienie, result);
 		if(result.hasErrors())
 		{
 			List<Potrawa> potrawy = potrawaRepository.findByCzyJestDostepna(true);
@@ -624,5 +619,31 @@ public class ApplicationController
 		}
 		model.addAttribute("listaZamowien", listaZamowien);
 		return "/zamowienia";
+	}
+	
+	@PostMapping(value = "/zatwierdzZamowienie")
+	public String zatwierdz(RedirectAttributes redir, HttpServletRequest request)
+	{
+		boolean parsable = true;
+		int id = 0;
+		try
+	    {
+			id = Integer.parseInt(request.getParameter("par"));
+	    }
+		catch(Exception e)
+		{
+			parsable = false;
+		}
+		if(parsable == true)
+		{
+			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
+			zamowienie.get(0).setCzyZrealizowane(true);
+			zamowienieRepository.save(zamowienie.get(0));
+			Stolik stolik = zamowienie.get(0).getStolik();
+			stolik.setCzyJestZajety(false);
+			stolikRepository.save(stolik);
+			redir.addAttribute("zamZatwierdzone", 1);
+		}
+		return "redirect:/zamowienia";
 	}
 }

@@ -28,13 +28,6 @@
 			background-size: cover;
 			opacity:0.6;
 		}
-		div#second
-		{
-			opacity:1;
-			position:absolute;
-			top: 0;
-			left:42%;
-		}
 		div#third
 		{
 			opacity:1;
@@ -66,11 +59,6 @@
 
 	<div id="first">
 	</div>
-	<div id="second">
-		<div align="center">
-			<font size="5"> <strong><s:message code="page.parametry.Tytul"/></strong> </font>
-		</div>
-	</div>
 	
 	<div id="fourth">
 		<form:form action="nowa-potrawa" method="POST" modelAttribute="Potrawa" enctype="multipart/form-data">
@@ -87,7 +75,7 @@
 				<label for="cena" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.potrawa.Cena"/></strong></label>
 				<div class="col-3">
 					<div class="input-container">
-						<div class="input-group-text"><i class="fa fa-user icon" style="font-size: 30px;color: red;"></i></div>
+						<div class="input-group-text"><i class="fa fa-user icon" style="font-size: 30px; color: red;"></i></div>
 						<form:input type="number" step="0.01" class="form-control" path="cena" name="cena" value="${potrawa.cena}" placeholder="cena"/>
 					</div>
 					<sf:errors path="Cena" class="text-danger"/>

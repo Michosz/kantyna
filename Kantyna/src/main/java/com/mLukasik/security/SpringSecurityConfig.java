@@ -42,7 +42,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
 		.authorizeRequests()
 		.antMatchers("/").permitAll()
 		.antMatchers("/main").permitAll()
-		.antMatchers("/rejestracja").permitAll()
+		.antMatchers("/rejestracja").hasAnyRole("MANAGER", "ANONYMOUS")
 		.antMatchers("/parametry").hasRole("MANAGER")
 		.antMatchers("/logowanie/**").permitAll()
 		//.antMatchers("/potrawa").permitAll()
@@ -67,7 +67,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
 		.logoutSuccessUrl("/logowanie")
 		.deleteCookies("JSESSIONID")
 		.invalidateHttpSession(true) 
-		.and().exceptionHandling().accessDeniedPage("/welcome");
+		.and().exceptionHandling().accessDeniedPage("/");
 	}
 	
 	@Override

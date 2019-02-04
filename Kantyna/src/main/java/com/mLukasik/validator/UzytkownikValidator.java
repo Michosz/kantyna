@@ -37,7 +37,7 @@ public class UzytkownikValidator implements Validator
 		String telefonRegex = "[0-9]{3}-[0-9]{3}-[0-9]{3}";
 		Pattern pattern = Pattern.compile(loginRegex);
         Matcher matcher = pattern.matcher(uzytkownik.getLogin());
-        if (!matcher.matches()) 
+        if(!(matcher.matches()) & uzytkownik.getRolaa() != null) 
         {
         	err.rejectValue("Login", "error.zlyLogin");
         }
@@ -55,11 +55,17 @@ public class UzytkownikValidator implements Validator
         {
         	err.rejectValue("Telefon", "error.JuzIstniejeTelefon");
         }
-		if(uzytkownik.getImie().length() < 3)
+		if(uzytkownik.getImie().length() < 2)
 		{
 			err.rejectValue("Imie", "error.ZaKrotkieImie");
 		}
-		
+		if(uzytkownik.getNazwisko().length() < 2)
+		{
+			err.rejectValue("Nazwisko", "error.ZaKrotkieNazwisko");
+		}
+		if(uzytkownik.getHaslo().length() < 2)
+		{
+			err.rejectValue("Haslo", "error.ZaKrotkieHaslo");
+		}
 	}
-	
 }

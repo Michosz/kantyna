@@ -13,5 +13,6 @@ public interface ZamowienieRepository extends CrudRepository<Zamowienie, Integer
 	List<Zamowienie> findByCzyManagerJeWidzialFalse();
 	List<Zamowienie> findByCzyKlientWidzialZatwierdzoneZamowienieFalseAndCzyJestZatwierdzonePrzezManageraTrue();
 	List<Zamowienie> findByUzytkownikLoginAndCzyJestZatwierdzonePrzezManageraTrue(String login);
+	List<Zamowienie> findByCzyKlientWidzialZatwierdzoneZamowienieFalseAndCzyJestZatwierdzonePrzezManageraTrueAndUzytkownikLogin(String login);
 	List<Zamowienie> findAll();
 }

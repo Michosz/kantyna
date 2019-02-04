@@ -203,13 +203,13 @@ pageEncoding="UTF-8"%>
 	
 	<sec:authorize access="hasRole('MANAGER')">
 		<c:if test="${noweZamowienia}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.NoweZamowienia"/></b></div>
+			<div class="container alert alert-warning mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.NoweZamowienia"/></b></div>
 		</c:if>
 	</sec:authorize>
 	
 	<sec:authorize access="hasRole('KLIENT')">
 		<c:if test="${nowePotwierdzenia}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.NoweZatwierdzenia"/></b></div>
+			<div class="container alert alert-warning mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.NoweZatwierdzenia"/></b></div>
 		</c:if>
 	</sec:authorize>
 
@@ -280,19 +280,25 @@ pageEncoding="UTF-8"%>
 					<c:out value="${potrawa.rodzajPotrawy.rodzaj}" />
 				</td>
 				<td>
-					<c:if test="${potrawa.czyJestDostepna}">
-						<form:form id="usun${potrawa.id}" class="zmienStatus" action="usunZmenu?par=${potrawa.id}" method="POST" onsubmit="return usuwanie(${potrawa.id}) ? true : false;">	
-							<button class="btn btn-primary" name=dodaj value="DodajA"><s:message code="page.main.UsunZmenu"/></button>
-						</form:form>				
-					</c:if>
-					<c:if test="${not potrawa.czyJestDostepna}">	
-						<form:form id="przywroc${potrawa.id}" class="zmienStatus" action="usunZmenu?par=${potrawa.id}" method="POST" onsubmit="return przywracanie(${potrawa.id}) ? true : false;">	
-							<button type="submit" class="btn btn-success" name=dodaj value="DodajA"><s:message code="page.main.PrzywrocDoMenu"/></button>
-						</form:form>
-					</c:if>
-					<button id="formularz${potrawa.id}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#komentarz1" title="<s:message code="page.main.Skomentuj"/>" onclick="pobierzIdPotrawy(${potrawa.id})">
-						<i class="far fa-comment-dots" style="font-size:30px"></i>
-					</button>
+					<sec:authorize access="hasRole('MANAGER')">
+						<c:if test="${potrawa.czyJestDostepna}">
+							<form:form id="usun${potrawa.id}" class="zmienStatus" action="usunZmenu?par=${potrawa.id}" method="POST" onsubmit="return usuwanie(${potrawa.id}) ? true : false;">	
+								<button class="btn btn-primary" name=dodaj value="DodajA"><s:message code="page.main.UsunZmenu"/></button>
+							</form:form>				
+						</c:if>
+					</sec:authorize>
+					<sec:authorize access="hasRole('MANAGER')">
+						<c:if test="${not potrawa.czyJestDostepna}">	
+							<form:form id="przywroc${potrawa.id}" class="zmienStatus" action="usunZmenu?par=${potrawa.id}" method="POST" onsubmit="return przywracanie(${potrawa.id}) ? true : false;">	
+								<button type="submit" class="btn btn-success" name=dodaj value="DodajA"><s:message code="page.main.PrzywrocDoMenu"/></button>
+							</form:form>
+						</c:if>
+					</sec:authorize>
+					<sec:authorize access="hasRole('KLIENT')">
+						<button id="formularz${potrawa.id}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#komentarz1" title="<s:message code="page.main.Skomentuj"/>" onclick="pobierzIdPotrawy(${potrawa.id})">
+							<i class="far fa-comment-dots" style="font-size:30px"></i>
+						</button>
+					</sec:authorize>
 					<c:choose>
 						<c:when test="${empty potrawa.listaKomentarzy}">
 							<button id="koment" type="button" class="btn btn-primary" disabled title="<s:message code="page.main.BrakKomentarzy"/>" data-toggle="modal" data-target="#komentarze" onclick="wyswietlKomentarze(${potrawa.id})">
