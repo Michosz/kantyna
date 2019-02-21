@@ -21,8 +21,13 @@ public class ParametryValidator implements Validator
 	{
 		boolean zlyFormatGodzinyO = false;
 		boolean zlyFormatGodzinyZ = false;
+		boolean zlyFormatZwalniania = false;
 		Parametry parametry = (Parametry)obj;
 		DateFormat formatter = new SimpleDateFormat("HH:mm");
+		if(parametry.getSzukanieStolika() < 0)
+		{
+			err.rejectValue("szukanieStolika", "error.ZaMalaLiczba");
+		}
 		try
 		{
 			Time godzinaOtwar = new Time(formatter.parse(parametry.getGodzinaO()).getTime());
@@ -39,6 +44,14 @@ public class ParametryValidator implements Validator
 		{
 			zlyFormatGodzinyZ = true;
 		}
+		try
+		{
+			Time zwalnianie  = new Time(formatter.parse(parametry.getZwalnianie()).getTime());
+		}
+		catch(ParseException e)
+		{
+			zlyFormatZwalniania = true;
+		}
 		if(zlyFormatGodzinyO)
 		{
 			err.rejectValue("godzinaO", "error.ZlyFormatGodzinyOtwarcia");
@@ -47,5 +60,9 @@ public class ParametryValidator implements Validator
 		{
 			err.rejectValue("godzinaZ", "error.ZlyFormatGodzinyZamkniecia");
 		}
+		if(zlyFormatZwalniania)
+		{
+			err.rejectValue("zwalnianie", "error.ZlyFormatZwalniania");
+        }
 	}
 }

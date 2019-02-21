@@ -8,4 +8,5 @@ public interface RodzajPotrawyRepository extends CrudRepository<RodzajPotrawy, I
 {
 	List<RodzajPotrawy> findAll();
 	List<RodzajPotrawy> findByRodzaj(String rodzaj);
+	List<RodzajPotrawy> findByRodzajIgnoreCase(String rodzaj);
 }

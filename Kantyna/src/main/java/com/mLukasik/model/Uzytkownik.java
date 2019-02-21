@@ -8,6 +8,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="uzytkownicy")
@@ -40,6 +43,20 @@ public class Uzytkownik
 	@Column(name = "czy_aktywny")
 	private boolean czy_aktywny;
 	
+	@JsonIgnore
+	@Transient
+	private String rolaa;
+	
+	public String getRolaa()
+	{
+		return rolaa;
+	}
+
+	public void setRolaa(String rolaa)
+	{
+		this.rolaa = rolaa;
+	}
+
 	public int getId()
 	{
 		return id;

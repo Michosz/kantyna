@@ -1,7 +1,5 @@
 package com.mLukasik.model;
 
-import java.sql.Time;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,17 +24,6 @@ public class Stolik
 	
 	@Column(name = "czy_jest_zajety")
 	private boolean czyJestZajety;
-	
-	/*
-	@Column()
-	private Time start;
-	
-	@Column()
-	private Time koniec;
-	
-	@Transient
-	private String czasStart
-	*/
 
 	public int getIdStolika()
 	{
