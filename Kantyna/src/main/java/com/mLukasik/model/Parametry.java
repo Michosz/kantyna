@@ -1,6 +1,6 @@
 package com.mLukasik.model;
 
-import java.sql.Time;
+import java.time.LocalTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="parametry")
@@ -19,20 +21,65 @@ public class Parametry
 	private int idParametru;
 	
 	@Column(name = "godzina_otwarcia")
-	private Time godzinaOtwarcia;
+	private LocalTime godzinaOtwarcia;
 	
 	@Column(name = "godzina_zamkniecia")
-	private Time godzinaZamkniecia;
+	private LocalTime godzinaZamkniecia;
 	
 	@Column(name = "szukanie_stolika")
 	private int szukanieStolika;
 	
+	@Column(name = "czy_zamkniete")
+	private boolean czyZamkniete;
+	
+	@Column(name = "czy_auto_zwalniac")
+	private boolean czyAutoZwalniac;
+	
+	@Column(name = "co_ile_zwalniac")
+	private LocalTime coIleZwalniac;
+
 	@Transient
+	@JsonIgnore
 	private String godzinaO;
 	
 	@Transient
+	@JsonIgnore
 	private String godzinaZ;
 	
+	@Transient
+	@JsonIgnore
+	private String zwalnianie;
+	
+	public boolean getCzyAutoZwalniac() 
+	{
+		return czyAutoZwalniac;
+	}
+
+	public void setCzyAutoZwalniac(boolean czyAutoZwalniac) 
+	{
+		this.czyAutoZwalniac = czyAutoZwalniac;
+	}
+
+	public LocalTime getCoIleZwalniac()
+	{
+		return coIleZwalniac;
+	}
+
+	public void setCoIleZwalniac(LocalTime coIleZwalniac) 
+	{
+		this.coIleZwalniac = coIleZwalniac;
+	}
+
+	public String getZwalnianie() 
+	{
+		return zwalnianie;
+	}
+
+	public void setZwalnianie(String zwalnianie) 
+	{
+		this.zwalnianie = zwalnianie;
+	}
+
 	public String getGodzinaO() 
 	{
 		return godzinaO;
@@ -63,22 +110,32 @@ public class Parametry
 		this.idParametru = id;
 	}
 
-	public Time getGodzinaOtwarcia()
+	public LocalTime getGodzinaOtwarcia()
 	{
 		return godzinaOtwarcia;
 	}
 
-	public void setGodzinaOtwarcia(Time godzinaOtwarcia) 
+	public boolean getCzyZamkniete() 
+	{
+		return czyZamkniete;
+	}
+
+	public void setCzyZamkniete(boolean czyZamkniete)
+	{
+		this.czyZamkniete = czyZamkniete;
+	}
+	
+	public void setGodzinaOtwarcia(LocalTime godzinaOtwarcia) 
 	{
 		this.godzinaOtwarcia = godzinaOtwarcia;
 	}
 
-	public Time getGodzinaZamkniecia() 
+	public LocalTime getGodzinaZamkniecia() 
 	{
 		return godzinaZamkniecia;
 	}
 
-	public void setGodzinaZamkniecia(Time godzinaZamkniecia) 
+	public void setGodzinaZamkniecia(LocalTime godzinaZamkniecia) 
 	{
 		this.godzinaZamkniecia = godzinaZamkniecia;
 	}

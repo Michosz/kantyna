@@ -10,6 +10,7 @@ public interface StolikRepository extends CrudRepository<Stolik, Integer>
 	List<Stolik> findByIloscMiejscBetweenAndCzyJestZajetyOrderByIloscMiejscAsc(int iloscMiejsc, int maxIlosc, boolean czyJestZajety);
 	List<Stolik> findByIdStolika(int idStolika);
 	List<Stolik> findByNazwa(String nazwa);
+	List<Stolik> findByNazwaIgnoreCase(String nazwa);
 	List<Stolik> findByCzyJestZajety(boolean zajety);
 	List<Stolik> findAll();
 }

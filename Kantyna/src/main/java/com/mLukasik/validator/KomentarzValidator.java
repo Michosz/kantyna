@@ -3,7 +3,6 @@ package com.mLukasik.validator;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import com.mLukasik.model.Komentarz;
-
 public class KomentarzValidator implements Validator
 {
 	public KomentarzValidator()
@@ -21,7 +20,7 @@ public class KomentarzValidator implements Validator
 	public void validate(Object obj, Errors err) 
 	{
 		Komentarz komentarz = (Komentarz)obj;
-        if(komentarz.getJakaOcena() == null)
+        if(komentarz.getJakaOcena() == null || komentarz.getJakaOcena() == "")
         {
         	err.rejectValue("Ocena", "error.PustaOcena");
         }

@@ -30,7 +30,7 @@ public class StolikValidator implements Validator
 	public void validate(Object obj, Errors err) 
 	{
 		Stolik stolik = (Stolik)obj;
-		String nazwaRegex = "^[a-zA-Z]{3,}$";
+		String nazwaRegex = "[a-zA-Z]{3,}$";
 		Pattern pattern = Pattern.compile(nazwaRegex);
         Matcher matcher = pattern.matcher(stolik.getNazwa());
         if(!matcher.matches()) 

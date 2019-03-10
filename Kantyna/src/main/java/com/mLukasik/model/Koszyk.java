@@ -11,10 +11,11 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
-@Table(name="potrawy_zamowienia")
-public class Potrawy_Zamowienia 
+@Table(name="koszyk")
+public class Koszyk 
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +25,18 @@ public class Potrawy_Zamowienia
 	@Column(name = "ilosc")
 	private int ilosc;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "id_potrawy", nullable = false)
 	private Potrawa potrawa;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_zamowienia", nullable = false)
-	private Zamowienie zamowienie;
+	@ManyToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_uzytkownika", nullable = false)
+	private Uzytkownik uzytkownik;
 	
-	public int getId()
+	@Transient
+	private int idPotrawy;
+
+	public int getId() 
 	{
 		return id;
 	}
@@ -47,12 +51,12 @@ public class Potrawy_Zamowienia
 		return ilosc;
 	}
 
-	public void setIlosc(int ilosc)
+	public void setIlosc(int ilosc) 
 	{
 		this.ilosc = ilosc;
 	}
 
-	public Potrawa getPotrawa() 
+	public Potrawa getPotrawa()
 	{
 		return potrawa;
 	}
@@ -62,13 +66,23 @@ public class Potrawy_Zamowienia
 		this.potrawa = potrawa;
 	}
 
-	public Zamowienie getZamowienie() 
+	public Uzytkownik getUzytkownik() 
 	{
-		return zamowienie;
+		return uzytkownik;
 	}
 
-	public void setZamowienie(Zamowienie zamowienie) 
+	public void setUzytkownik(Uzytkownik uzytkownik) 
 	{
-		this.zamowienie = zamowienie;
+		this.uzytkownik = uzytkownik;
+	}
+	
+	public int getIdPotrawy() 
+	{
+		return idPotrawy;
+	}
+
+	public void setIdPotrawy(int idPotrawy) 
+	{
+		this.idPotrawy = idPotrawy;
 	}
 }

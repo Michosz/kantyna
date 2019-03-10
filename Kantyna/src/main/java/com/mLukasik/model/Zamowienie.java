@@ -1,5 +1,7 @@
 package com.mLukasik.model;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +20,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.criteria.Fetch;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name="zamowienia")
@@ -28,38 +36,60 @@ public class Zamowienie
 	private int id;
 	
 	@Column(name = "data_zamowienia")
-	private Date dataZam;
-	
-	@Column(name = "czy_jest_zatwierdzone_przez_managera")
-	private boolean czyJestZatwierdzonePrzezanagera;
+	@Type(type = "date") //zeby wyswietlalo tylko date,bez godziny
+	private Date dataZam ;
 	
 	@Column(name = "czy_manager_je_widzial")
 	private boolean czyManagerJeWidzial;
+
+	@Column(name = "czy_zrealizowane")
+	private boolean czyZrealizowane;
 	
-	@Column(name = "czy_klient_widzial_zatwierdzone_zamowienie")
-	private boolean czyKlientWidzialZatwierdzoneZamowienie;
+	@Column(name = "czas_realizacji")
+	private LocalTime czasRealizacji;
 
 	@ManyToOne 
 	@JoinColumn(name = "id_stolika", nullable = false)
 	private Stolik stolik;
 	
-	@ManyToOne 
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_uzytkownika", nullable = false)
 	private Uzytkownik uzytkownik;
 	
+	@JsonIgnoreProperties("zamowienie") //unikanie nieskonczonej rekursji
 	@OneToMany(mappedBy = "zamowienie", cascade=CascadeType.ALL) //mappedBy = cos - nazwa obiektu w innej klasie
-	//cascade all - zapisujesz wszystko co powiazane z ta kalsa do bazy
+	//cascade all - zapisujesz wszystko co powiazane z ta klasa do bazy
 	private List<Potrawy_Zamowienia> potrawy_Zamowienia = new ArrayList<Potrawy_Zamowienia>();
 	
 	@Transient
-	List<Integer> listaIlosci = new ArrayList<Integer>();
-	
-	@Transient
-	List<Integer> listaPotraw = new ArrayList<Integer>();
+	int koszyk;
 	
 	@Transient
 	int iloscMiejsc;
+	
+	@Transient
+	String czasReal;
 
+	public LocalTime getCzasRealizacji() 
+	{
+		return czasRealizacji;
+	}
+
+	public void setCzasRealizacji(LocalTime czasRealizacji)
+	{
+		this.czasRealizacji = czasRealizacji;
+	}
+	
+	public String getCzasReal() 
+	{
+		return czasReal;
+	}
+
+	public void setCzasReal(String czasReal) 
+	{
+		this.czasReal = czasReal;
+	}
+	
 	public int getIloscMiejsc() 
 	{
 		return iloscMiejsc;
@@ -80,21 +110,13 @@ public class Zamowienie
 		this.potrawy_Zamowienia = potrawy_Zamowienia;
 	}
 
-	public List<Integer> getListaIlosci() 
+	public int getKoszyk() 
 	{
-		return listaIlosci;
+		return koszyk;
 	}
 
-	public void setListaIlosci(List<Integer> listaIlosci) {
-		this.listaIlosci = listaIlosci;
-	}
-
-	public List<Integer> getListaPotraw() {
-		return listaPotraw;
-	}
-
-	public void setListaPotraw(List<Integer> listaPotraw) {
-		this.listaPotraw = listaPotraw;
+	public void setKoszyk(int koszyk) {
+		this.koszyk = koszyk;
 	}
 
 	public int getId()
@@ -116,15 +138,15 @@ public class Zamowienie
 	{
 		this.dataZam = dataZam;
 	}
-
-	public boolean isCzyJestZatwierdzonePrzezanagera()
+	
+	public boolean getCzyZrealizowane() 
 	{
-		return czyJestZatwierdzonePrzezanagera;
+		return czyZrealizowane;
 	}
 
-	public void setCzyJestZatwierdzonePrzezanagera(boolean czyJestZatwierdzonePrzezanagera) 
+	public void setCzyZrealizowane(boolean czyZrealizowane)
 	{
-		this.czyJestZatwierdzonePrzezanagera = czyJestZatwierdzonePrzezanagera;
+		this.czyZrealizowane = czyZrealizowane;
 	}
 
 	public boolean isCzyManagerJeWidzial() 
@@ -135,16 +157,6 @@ public class Zamowienie
 	public void setCzyManagerJeWidzial(boolean czyManagerJeWidzial) 
 	{
 		this.czyManagerJeWidzial = czyManagerJeWidzial;
-	}
-
-	public boolean isCzyKlientWidzialZatwierdzoneZamowienie()
-	{
-		return czyKlientWidzialZatwierdzoneZamowienie;
-	}
-
-	public void setCzyKlientWidzialZatwierdzoneZamowienie(boolean czyKlientWidzialZatwierdzoneZamowienie) 
-	{
-		this.czyKlientWidzialZatwierdzoneZamowienie = czyKlientWidzialZatwierdzoneZamowienie;
 	}
 
 	public Stolik getStolik() 

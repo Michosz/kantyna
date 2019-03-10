@@ -7,4 +7,5 @@ import com.mLukasik.model.Parametry;
 public interface ParametryRepository extends CrudRepository<Parametry, Integer>
 {
 	List<Parametry> findByIdParametru(int id);
+	List<Parametry> findAll();
 }

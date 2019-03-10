@@ -8,4 +8,5 @@ import com.mLukasik.model.Rola;
 public interface RolaRepository extends CrudRepository<Rola, Integer>
 {
 	List<Rola> findByRola(String Rola);
+	List<Rola> findAll();
 }
