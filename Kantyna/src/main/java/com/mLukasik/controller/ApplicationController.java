@@ -35,9 +35,6 @@ import com.mLukasik.validator.ParametryValidator;
 import com.mLukasik.validator.PotrawaValidator;
 import com.mLukasik.validator.StolikValidator;
 import com.mLukasik.validator.UzytkownikValidator;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
