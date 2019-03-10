@@ -7,6 +7,7 @@ pageEncoding="UTF-8"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <html>
 <head>
@@ -72,33 +73,53 @@ pageEncoding="UTF-8"%>
 	    float: none;
 	    clear: both;
 	}
-	
 	</style>
 	
 	<script>
-		function zwalnianie(id)
+		function usuwanie(id)
 		{
 			swal({ 
-			    title: '<s:message code="page.stoliki.ZwalnianieStolika"/>',   
-			    text: '<s:message code="page.stoliki.PytanieZwalnianie"/>',   
-			    type: "question",   
-			    showCancelButton: true,   
-			    confirmButtonColor: "#DD6B55",   
-			    confirmButtonText: '<s:message code="page.main.Tak"/>',   
-			    cancelButtonText: '<s:message code="page.main.Nie"/>',   
-			    closeOnConfirm: false,   
-			    closeOnCancel: false }).then((result) => {
-				if(result.value)
-				{
-					var formularze = document.getElementsByClassName("zwolnijS");
-					var formularz = formularze[id-1];  
-					formularz.submit();
-				}
-				else
-				{
-					swal('<s:message code="page.stoliki.Anulowane"/>'/*, "success"*/);
-					return false;
-				}})
+		    title: '<s:message code="page.koszyk.UsuwaniePot"/>',   
+		    text: '<s:message code="page.koszyk.PytanieUsu"/>',   
+		    type: "question",   
+		    showCancelButton: true,   
+		    confirmButtonColor: "#DD6B55",   
+		    confirmButtonText: '<s:message code="page.main.Tak"/>',   
+		    cancelButtonText: '<s:message code="page.main.Nie"/>',   
+		    closeOnConfirm: false,   
+		    closeOnCancel: false }).then((result) => {
+			if(result.value)
+			{
+				document.getElementById("usun" + id).submit();
+			}
+			else
+			{
+				swal('<s:message code="page.main.Anulowane"/>'/*, "success"*/);
+				return false;
+			}})
+		}
+		
+		function usuwanieWszystko()
+		{
+			swal({ 
+		    title: '<s:message code="page.koszyk.UsuwaniePotWszystko"/>',   
+		    text: '<s:message code="page.koszyk.PytanieUsuWszystko"/>',   
+		    type: "question",   
+		    showCancelButton: true,   
+		    confirmButtonColor: "#DD6B55",   
+		    confirmButtonText: '<s:message code="page.main.Tak"/>',   
+		    cancelButtonText: '<s:message code="page.main.Nie"/>',   
+		    closeOnConfirm: false,   
+		    closeOnCancel: false }).then((result) => {
+			if(result.value)
+			{
+				document.getElementById("usunWszystko").submit();
+			}
+			else
+			{
+				swal('<s:message code="page.main.Anulowane"/>'/*, "success"*/);
+				return false;
+			}})
 		}
 	</script>
 </head>
@@ -107,61 +128,95 @@ pageEncoding="UTF-8"%>
 	<%@include file="/WEB-INF/menu.incl" %>
 	
 	<c:choose>
-		<c:when test="${param.zwolniony == '1'}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.stoliki.StolikZwolniony"/></b></div>
+		<c:when test="${param.potUsunieta == '1'}">
+			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.koszyk.UsunWszystko"/></b></div>
+		</c:when>
+		<c:when test="${param.koszykPusty == '1'}">
+			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.koszyk.KoszykPusty"/></b></div>
 		</c:when>
 	</c:choose>
 	
-	<table class="table table-bordered table-striped table-dark" id="stoliki" style="table-layout: fixed">
+	<form:form id="usunWszystko" class="zmienStatus" action="usunWszystko" method="POST" onsubmit="return usuwanieWszystko() ? true : false;">	
+		<button type="submit" class="btn btn-danger" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.koszyk.UsunWszystko"/></button>
+	</form:form>
+	<table class="table table-bordered table-striped table-dark" id="potrawy" style="table-layout: fixed">
 		<thead>
 			<tr>
-				<th><s:message code="page.stoliki.Nazwa"/></th>
-				<th><s:message code="page.stoliki.IloscMiejsc"/></th>
-				<th><s:message code="page.stoliki.czyJestZajety"/></th>
-				<sec:authorize access="hasRole('MANAGER')">
-				<th><s:message code="page.stoliki.Przyciski"/></th>
-				</sec:authorize>
+				<th style="width: 220px"><s:message code="page.main.Obrazek"/></th>
+				<th><s:message code="page.koszyk.Nazwa"/></th>
+				<th><s:message code="page.main.CzyDostepna"/></th>
+				<th><s:message code="page.main.Cena"/></th>
+				<th><s:message code="page.main.CzyPromocja"/></th>
+				<th><s:message code="page.main.Rodzaj"/></th>
+				<th><s:message code="page.koszyk.Ilosc"/></th>
+				<th></th>
 			</tr>
 		</thead>
-		<c:forEach items="${listaStolikow}" var="stolik">
+		<c:forEach items="${koszyk}" var="koszyk">
 		<tr>
 			<td>
-				<c:out value="${stolik.nazwa}" />
+				<img src="data:potrawa/jpeg;base64,${koszyk.potrawa.base64}" width="200" height="200" title="<s:message code="page.main.ByPowiekszyc"/>" style="cursor: pointer" onclick="onClick('data:potrawa/jpeg;base64,${koszyk.potrawa.base64}')" data-toggle="modal" data-target="#obrazek"/>
 			</td>
 			<td>
-				<c:out value="${stolik.iloscMiejsc}" />
+				<c:out value="${koszyk.potrawa.nazwa}"/>
 			</td>
 			<td>
-				<c:choose>
-					<c:when test="${stolik.czyJestZajety}">
-						<s:message code="page.stoliki.Tak"/>
-					</c:when>
-					<c:otherwise>
-						<s:message code="page.stoliki.Nie"/>
-					</c:otherwise>
-				</c:choose>
-			</td>
-			<sec:authorize access="hasRole('MANAGER')">
-			<td>
-				<c:if test="${stolik.czyJestZajety}">
-					<form:form id="zwolnij" class="zwolnijS" action="zwolnij?par=${stolik.idStolika}" method="POST" onsubmit="return zwalnianie(${stolik.idStolika}) ? true : false;">	
-						<button class="btn btn-primary" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.stoliki.Zwolnij"/></button>
-					</form:form>				
+				<c:if test="${koszyk.potrawa.czyJestDostepna}">
+					<s:message code="page.main.Tak"/>
 				</c:if>
-				<c:if test="${not stolik.czyJestZajety}">
-					<form:form id="zwolnij" class="zwolnijS" action="zwolnij?par=${stolik.idStolika}" method="POST" onsubmit="return zwalnianie(${stolik.idStolika}) ? true : false;">	
-						<button class="btn btn-primary" name=dodaj value="DodajA" style="width: 100%" disabled><s:message code="page.stoliki.Zwolnij"/></button>
-					</form:form>	
+				<c:if test="${not koszyk.potrawa.czyJestDostepna}">
+					<s:message code="page.main.Nie"/>
 				</c:if>
 			</td>
-			</sec:authorize>
+			<td>
+				<c:if test="${koszyk.potrawa.czyPromocja}">
+					<fmt:formatNumber type="number" minFractionDigits="2" value="${koszyk.potrawa.cenaPromocyjna}"/>
+				</c:if>
+				<c:if test="${not koszyk.potrawa.czyPromocja}">
+					<fmt:formatNumber type="number" minFractionDigits="2" value="${koszyk.potrawa.cena}"/>
+				</c:if>
+			</td>
+			<td>
+				<c:if test="${koszyk.potrawa.czyPromocja}">
+					<s:message code="page.main.Tak"/>
+				</c:if>
+				<c:if test="${not koszyk.potrawa.czyPromocja}">
+					<s:message code="page.main.Nie"/>
+				</c:if>
+			</td>
+			<td>
+				<c:out value="${koszyk.potrawa.rodzajPotrawy.rodzaj}"/>
+			</td>
+			<td>
+				<c:out value="${koszyk.ilosc}" />
+			</td>
+			<td>
+				<form:form id="usun${koszyk.potrawa.id}" class="zmienStatus" action="usunZkoszyka?par=${koszyk.potrawa.id}" method="POST" onsubmit="return usuwanie(${koszyk.potrawa.id}) ? true : false;">	
+					<button type="submit" class="btn btn-danger" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.koszyk.Usun"/></button>
+				</form:form>
+			</td>
 		</tr>
 		</c:forEach>
 	</table>
 	
-	<div id="przyciski" style="align: center">
+		<div id="przyciski" style="align: center">
+		
+		</div>
 	
-	</div>
+		<div class="modal fade" id="obrazek" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      	<img class="w3-modal-content" id="wiekszyObrazek" style="width:100%">
+			     </div>
+			 	</div>
+				</div>
+		</div>	
 	
 	<script>
 		function stronicowanie()
@@ -190,7 +245,7 @@ pageEncoding="UTF-8"%>
 					btn.disabled = true;		
 				}
 			}
-		 	var table = document.getElementById("stoliki");
+		 	var table = document.getElementById("potrawy");
 		 	var tr = table.getElementsByTagName("tr");
 			for (i = 0; i < tr.length; i++) 
 	  		{
@@ -210,7 +265,7 @@ pageEncoding="UTF-8"%>
 			var ileNaStrone = 1;
 			var ileStron = Math.ceil(${iloscRekordow}/ileNaStrone);
 			var table, tr, td, i, txtValue;
-		  	table = document.getElementById("stoliki");
+		  	table = document.getElementById("potrawy");
 		 	tr = table.getElementsByTagName("tr");
 		 	var ktoryButton;
 		 	var txt;
@@ -262,6 +317,11 @@ pageEncoding="UTF-8"%>
 		{
 			stronicowanie();
 		});
+	
+		function onClick(source) 
+		{
+			document.getElementById("wiekszyObrazek").src = source;
+		}
 	</script>
 		
 </body>

@@ -114,7 +114,6 @@
 	<div id="first">
 	</div>
 	<div id="second">
-		<font size="7" color = "blue">Kantyna</font>
 		<div align="center">
 			<font size="5"> <strong><s:message code="page.rejestracja.Tytul"/></strong> </font>
 		</div>

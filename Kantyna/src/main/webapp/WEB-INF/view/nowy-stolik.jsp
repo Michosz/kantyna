@@ -26,13 +26,6 @@
 		background-size: cover;
 		opacity:0.6;
 	}
-	div#second
-	{
-		opacity:1;
-		position:absolute;
-		top: 0;
-		left:42%;
-	}
 	div#fourth
 	{
 		 margin-top: 170px;
@@ -46,13 +39,7 @@
 
 	<div id="first">
 	</div>
-	<div id="second">
-		<font size="7" color = "blue">Kantyna</font>
-		<div align="center">
-			<font size="5"> <strong><s:message code="page.parametry.Tytul"/></strong> </font>
-		</div>
-	</div>
-
+	
 	<div id="fourth">
 		<form:form action="nowy-stolik" method="POST" modelAttribute="Stolik">
 			

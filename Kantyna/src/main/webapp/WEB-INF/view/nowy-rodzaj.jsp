@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
@@ -60,61 +61,20 @@
 	</div>
 	
 	<div id="fourth">
-		<sf:form action="nowa-potrawa" method="POST" modelAttribute="Potrawa" enctype="multipart/form-data">
+		<form:form action="nowy-rodzaj" method="POST" modelAttribute="RodzajPot">
 			
 			<div class="form-group row" style="width: 100%;">
-				<label for="nazwa" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.potrawa.Nazwa"/>:</strong></label>
+				<label for="nazwa" class="col-md-2 offset-md-3 col-form-label" style="text-align: right"><strong><s:message code="page.rodzaj.Nazwa"/></strong></label>
 				<div class="col-3">
-					<sf:input type="text" class="form-control" path="nazwa" name="nazwa" value="${potrawa.nazwa}" placeholder="nazwa"/>
-					<sf:errors path="Nazwa" class="text-danger" />
+					<form:input type="text" class="form-control" path="rodzaj" name="nazwa" value="${RodzajPot.rodzaj}" placeholder="nazwa"/>
+					<sf:errors path="Rodzaj" class="text-danger" />
 				</div>
 			</div>	
 			
-			<div class="form-group row" style="width: 100%;">
-				<label for="cena" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.potrawa.Cena"/></strong></label>
-				<div class="col-3">
-					<div class="input-group">
-						<sf:input type="number" step="0.01" class="form-control" path="cena" name="cena" value="${potrawa.cena}" placeholder="cena"/>
-					</div>
-					<sf:errors path="Cena" class="text-danger"/>
-				</div>
-			</div>
-			
-			<div class="form-group row" style="width: 100%;">
-				<label for="rodzajPot" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.potrawa.Rodzaj"/></strong></label>
-				<div class="col-3">
-					<sf:select items="${lista}" path="rodzajPot" name="rodzajPot" value="${potrawa.rodzajPot}" placeholder="rodzaj" class="form-control"/>
-					<sf:errors path="RodzajPot" class="text-danger" />
-				</div>
-			</div>
-			
-			<div class="form-group row" style="width: 100%;">
-				<label for="Login" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.potrawa.Obrazek"/></strong></label>
-				<div class="col-3">
-					<label class="btn btn-info btn-lg btn-block" style="min-width: 250px">
-					<span id="nazwaPliku"><i class="fa fa-upload"></i> <strong><s:message code="page.potrawa.Plik"/></strong></span>
-			   			<sf:input type="file" class="inputfile" id="plik" path="obrazek" name="obrazek" style="display: none"/>	
-			  		</label>
-			  		<div class="form-group row" style="margin-left: 3px">
-					<sf:errors path="Obrazek" class="text-danger" />
-					</div>
-				</div>
-			</div>
-		
-			<script>
-			    $(document).ready(function()
-			    {
-		    		  $("#plik").change(function(e)
-		  			  {
-		  					$("#nazwaPliku").text(e.target.files[0].name)
-		  			  });
-			    });
-			</script>
-		
 		<div align="center">
-			<button type="submit" class="btn btn-primary btn-lg" name=szukaj value="Szukaj"><s:message code="page.potrawa.Wyslij"/></button>
+			<button type="submit" class="btn btn-primary btn-lg" name=szukaj value="Szukaj"><s:message code="page.rodzaj.Wyslij"/></button>
 		</div>
-	</sf:form>
+	</form:form>
 	</div>
 </body>
 
