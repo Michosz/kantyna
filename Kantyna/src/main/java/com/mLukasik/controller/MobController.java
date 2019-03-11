@@ -117,7 +117,7 @@ public class MobController
 			 {
 				 bledy.add((messageSource.getMessage(result.getAllErrors().get(i).getCode(), null, new Locale("PL"))));
 			 }
-			 return ResponseEntity.badRequest().body(bledy);
+			 return ResponseEntity.accepted().body(bledy);
 		 }
 		 else
 		 {
