@@ -244,7 +244,7 @@ pageEncoding="UTF-8"%>
 		<div class="form-group row" style="width: 100%;">
 			<label for="rodzajPot" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.main.Nazwa"/></strong></label>
 			<div class="col-3">
-				<input id="nazwaPotrawy" type="text" class="form-control" onkeydown="szukajPoNazwie()" name="nazwa" placeholder="nazwa"/>
+				<input id="nazwaPotrawy" type="text" class="form-control" onkeydown="szukajPoNazwie(event)" name="nazwa" placeholder="nazwa"/>
 			</div>
 		</div>
 		
@@ -509,7 +509,7 @@ pageEncoding="UTF-8"%>
 		    });
 		});
 			
-		function szukajPoNazwie()
+		function szukajPoNazwie(event)
 		{
 			stronicowanie("wszystkie");
 			if(event.key == 'Enter') 
