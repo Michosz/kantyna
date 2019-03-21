@@ -37,7 +37,13 @@ public class Parametry
 	
 	@Column(name = "co_ile_zwalniac")
 	private LocalTime coIleZwalniac;
-
+	
+	@Column(name = "telefon")
+	private String telefon;
+	
+	@Column(name = "email")
+	private String email;
+	
 	@Transient
 	@JsonIgnore
 	private String godzinaO;
@@ -148,5 +154,25 @@ public class Parametry
 	public void setSzukanieStolika(int szukaneStoliki) 
 	{
 		this.szukanieStolika = szukaneStoliki;
+	}
+	
+	public void setTelefon(String telefon) 
+	{
+		this.telefon = telefon;
+	}
+
+	public String getTelefon() 
+	{
+		return telefon;
+	}
+	
+	public void setEmail(String email) 
+	{
+		this.email = email;
+	}
+
+	public String getEmail() 
+	{
+		return email;
 	}
 }

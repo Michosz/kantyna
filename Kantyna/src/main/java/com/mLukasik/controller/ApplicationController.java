@@ -164,22 +164,8 @@ public class ApplicationController
 	@PostMapping("/rejestracja")
 	public String zarejestruj(@Valid @ModelAttribute("Uzytkownik") Uzytkownik uzytkownik, BindingResult result, RedirectAttributes redir, ModelMap map, Model model)
 	{
-		List<Uzytkownik> listaU = uzytkownikRepository.findByLoginIgnoreCase(uzytkownik.getLogin());
-		List<Uzytkownik> listaU2 = uzytkownikRepository.findByTelefon(uzytkownik.getTelefon());
-		boolean czyLoginIstnieje = false;
-		boolean czyTelefonIstnieje = false;
-		if(listaU.size() > 0 )
-		{
-			czyLoginIstnieje = true;
-		}
-		if(listaU2.size() > 0 )
-		{
-			czyTelefonIstnieje = true;
-		}
-		if(uzytkownik.getRolaa() != null)
-		{
-			System.out.println(uzytkownik.getRolaa());
-		}
+		boolean czyLoginIstnieje = zbiorczyService.czyLoginIstnieje(uzytkownik.getLogin());
+		boolean czyTelefonIstnieje = zbiorczyService.czyTelefonIstnieje(uzytkownik.getTelefon());
 		new UzytkownikValidator(czyLoginIstnieje, czyTelefonIstnieje).validate(uzytkownik, result);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(result.hasErrors())
@@ -859,6 +845,80 @@ public class ApplicationController
 			return "redirect:/";
 		}
 	}
+	
+	@RequestMapping(value = "/listaUzytk", method = RequestMethod.GET) //dodac to do navbara
+	public String pokazUzytkownikow(HttpServletRequest request, Model model)
+	{
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<Uzytkownik> uzytkownicy = uzytkownikRepository.findByLoginNot(auth.getName());
+		for(int i = 0; i < uzytkownicy.size(); i++)
+		{
+			String rola = uzytkownicy.get(i).getRola().getRola();
+			uzytkownicy.get(i).getRola().setRola(rola.replace("ROLE_", ""));
+		}
+		model.addAttribute("uzytkownik", auth.getName());
+		model.addAttribute("uzytkownicy", uzytkownicy);
+		model.addAttribute("iloscRekordow", uzytkownicy.size());
+		return "/listaUzytkownikow";
+	}
+	
+	@RequestMapping(value = "/konto", method = RequestMethod.GET)
+	public String konto(HttpServletRequest request, Model model)
+	{
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		model.addAttribute("uzytkownik", auth.getName());
+		List<Uzytkownik> dane = uzytkownikRepository.findByLogin(auth.getName());	
+		model.addAttribute("konto", dane.get(0));
+		return "/konto";
+	}
+	
+	@RequestMapping(value = "/edytuj", method = RequestMethod.GET)
+	public ModelAndView edytujKonto(HttpServletRequest request, Model model)
+	{
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		model.addAttribute("uzytkownik", auth.getName());
+		List<Uzytkownik> uzyt = uzytkownikRepository.findByLogin(auth.getName());
+		model.addAttribute("wartosci", uzyt.get(0));
+		return new ModelAndView("edytuj", "dane", new Uzytkownik());
+	}
+	
+	@PostMapping(value = "/edytuj")
+	public String zmienDane(@Valid @ModelAttribute("dane") Uzytkownik uzytkownik, HttpServletRequest request, BindingResult result, RedirectAttributes redir, Model model)
+	{
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<Uzytkownik> uzytk = uzytkownikRepository.findByLogin(auth.getName());
+		boolean czyTelefonIstnieje = false;
+		if(uzytk.get(0).getTelefon().equals(uzytkownik.getTelefon()))
+		{
+			czyTelefonIstnieje = false;
+		}
+		else
+		{
+			czyTelefonIstnieje = zbiorczyService.czyTelefonIstnieje(uzytkownik.getTelefon());
+		}
+		boolean czyHasloTakieSamo = bcp.matches(uzytkownik.getHaslo(), uzytk.get(0).getHaslo());
+		new UzytkownikValidator(false, czyTelefonIstnieje, czyHasloTakieSamo).validate2(uzytkownik, result);
+		if(result.hasErrors())
+		{
+			model.addAttribute("uzytkownik", auth.getName());
+			List<Uzytkownik> uzyt = uzytkownikRepository.findByLogin(auth.getName());
+			model.addAttribute("wartosci", uzyt.get(0));
+			return "edytuj";
+		}
+		else
+		{
+			if(uzytkownik.getHaslo().length() > 0)
+			{
+				uzytk.get(0).setHaslo(bcp.encode(uzytkownik.getHaslo()));
+			}
+			uzytk.get(0).setTelefon(uzytkownik.getTelefon());
+			redir.addAttribute("udanaEdycja", 1);
+			uzytkownikRepository.save(uzytk.get(0));
+		}
+		return "redirect:/";
+	}
+	
+	//moznaby dodac w parametrach telefon i email, tak by bylo w prawdziwej raczej
 	
 	//usuwanie promocji o polnocz
 	@Scheduled(cron = "0 0 0 * * ?")

@@ -36,7 +36,7 @@ public class Potrawa
 	@Column(name = "czy_jest_dostepna")
 	private boolean czyJestDostepna;
 
-	@JsonIgnore
+	//@JsonIgnore
 	@Column(name = "zdjecie")
 	private byte[] zdjecie;
 	
@@ -64,7 +64,8 @@ public class Potrawa
 	@JoinColumn(name = "id_rodzaju", nullable = false)
 	private RodzajPotrawy rodzajPotrawy;
 	
-	@JsonIgnoreProperties("potrawa")
+	@JsonIgnore
+	//@JsonIgnoreProperties("potrawa") // zeby nie wpadalo w nieskonczona petle i wyswietlalo komentarze
 	@OneToMany(mappedBy="potrawa")
 	private List<Komentarz> listaKomentarzy = new ArrayList<Komentarz>();
 	//dodac one to one (nie pamietam o co chodzilo)

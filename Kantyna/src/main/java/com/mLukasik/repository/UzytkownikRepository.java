@@ -14,5 +14,6 @@ public interface UzytkownikRepository extends CrudRepository<Uzytkownik, Integer
 	List<Uzytkownik> findByLoginIgnoreCase(String login);
 	//Optional<Uzytkownik> findByLogin(String Login);
 	List<Uzytkownik> findByTelefon(String Telefon);
+	List<Uzytkownik> findByLoginNot(String Login);
 	List<Uzytkownik> findAll();
 }

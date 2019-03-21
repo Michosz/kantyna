@@ -20,7 +20,7 @@ public class KomentarzValidator implements Validator
 	public void validate(Object obj, Errors err) 
 	{
 		Komentarz komentarz = (Komentarz)obj;
-        if(komentarz.getJakaOcena() == null || komentarz.getJakaOcena() == "")
+        if(komentarz.getJakaOcena() == null || komentarz.getJakaOcena() == "" || komentarz.getJakaOcena().contains("0"))
         {
         	err.rejectValue("Ocena", "error.PustaOcena");
         }

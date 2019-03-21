@@ -11,6 +11,7 @@ public class UzytkownikValidator implements Validator
 {
 	boolean czyLoginIstnieje = false;
 	boolean czyTelefonIstnieje = false;
+	boolean czyHasloTakieSamo = false;
 	
 	public UzytkownikValidator()
 	{
@@ -21,6 +22,13 @@ public class UzytkownikValidator implements Validator
 	{
 		this.czyLoginIstnieje = czyLoginIstnieje;
 		this.czyTelefonIstnieje = czyTelefonIstnieje;
+	}
+	
+	public UzytkownikValidator(boolean czyLoginIstnieje, boolean czyTelefonIstnieje, boolean czyHasloTakieSamo)
+	{
+		this.czyLoginIstnieje = czyLoginIstnieje;
+		this.czyTelefonIstnieje = czyTelefonIstnieje;
+		this.czyHasloTakieSamo = czyHasloTakieSamo;
 	}
 	
 	@Override
@@ -66,9 +74,37 @@ public class UzytkownikValidator implements Validator
 		{
 			err.rejectValue("Nazwisko", "error.ZaKrotkieNazwisko");
 		}
-		if(uzytkownik.getHaslo().length() < 2)
+		if(uzytkownik.getHaslo().length() < 3)
 		{
 			err.rejectValue("Haslo", "error.ZaKrotkieHaslo");
 		}
+	}
+	
+	public void validate2(Object obj, Errors err) 
+	{
+		Uzytkownik uzytkownik = (Uzytkownik)obj;
+		String telefonRegex = "[0-9]{3}-[0-9]{3}-[0-9]{3}";
+		Pattern pattern = Pattern.compile(telefonRegex);
+	    Matcher matcher = pattern.matcher(uzytkownik.getTelefon());
+        if(uzytkownik.getTelefon() != null && !matcher.matches())
+        {
+        	err.rejectValue("Telefon", "error.zlyFormat");
+        }
+        if(czyTelefonIstnieje)
+        {
+        	err.rejectValue("Telefon", "error.JuzIstniejeTelefon");
+        }
+        if(uzytkownik.getHaslo().length() == 0)
+        {
+        	
+        }
+        else if(uzytkownik.getHaslo() != null && uzytkownik.getHaslo().length() < 3)
+		{
+			err.rejectValue("Haslo", "error.ZaKrotkieHaslo");
+		}
+        if(uzytkownik.getHaslo() != null && czyHasloTakieSamo == true)
+        {
+        	err.rejectValue("Haslo", "error.musiBycInneHaslo");
+        }
 	}
 }

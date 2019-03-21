@@ -220,6 +220,9 @@ pageEncoding="UTF-8"%>
 		<c:when test="${param.promocja == '1'}">
 			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.PrzeniesioneNaPromocje"/></b></div>
 		</c:when>
+		<c:when test="${param.udanaEdycja == '1'}">
+			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.UdanaEdycja"/></b></div>
+		</c:when>
 	</c:choose>
 	
 	<sec:authorize access="hasRole('MANAGER')">

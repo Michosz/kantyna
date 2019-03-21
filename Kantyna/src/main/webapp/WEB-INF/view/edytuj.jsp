@@ -50,62 +50,36 @@
 
 <body style="background-color:#d1e1bf">
 <%@include file="/WEB-INF/menu.incl" %>
-	
-	<div style="position:absolute; left: 40%">
-		<c:choose>
-			<c:when test="${wartosci.czyZamkniete}">
-				<font size=8 color="red">
-					<s:message code="page.main.Zamkniete"/>
-				</font>
-			</c:when>
-		</c:choose>
-	</div>
+
 	<div id="first">
 	</div>
 	
-	<div id=fourth class="offset-md-3" style="border-style: solid; width: 50%">
-	
-			<s:message code="page.parametry.GodzinaOtwarcia" var="godzinaOtwar"/>
+	<div id=fourth>
+		<form:form action="edytuj" method="POST" modelAttribute="dane">
+			
+			<s:message code="page.rejestracja.NoweHaslo" var="mhaslo"/>
 			<div class="form-group row" style="width: 100%;">
-				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${godzinaOtwar}:</strong>   <c:out value="${wartosci.godzinaOtwarcia}"/>
-				</label>
-			</div>
-		
-			<s:message code="page.parametry.GodzinaZamkniecia" var="godzinaZam"/>
-			<div class="form-group row" style="width: 100%;">
-				<label for="Nazwisko" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${godzinaZam}:</strong>  <c:out value="${wartosci.godzinaZamkniecia}"/>
-				</label>
-			</div>
-		
-			<div class="form-group row" style="width: 100%;">
-				<label for="Login" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong><s:message code="page.parametry.SzukanieStolika"/>:</strong>  <c:out value="${wartosci.szukanieStolika}"/>
-				</label>
-			</div>
-					
-			<s:message code="page.parametry.coIleZwalniac" var="coIleZwal"/>
-			<div class="form-group row" style="width: 100%;">
-				<label for="Nazwisko" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${coIleZwal}:</strong>  <c:out value="${wartosci.coIleZwalniac}"/>
-				</label>
+				<label for="Haslo" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong>${mhaslo}:</strong></label>
+				<div class="col-3">
+					<form:input type="password" class="form-control" path="haslo" name="haslo" placeholder="${mhaslo}"/>
+					<sf:errors path="Haslo" class="text-danger" />
+				</div>
 			</div>
 			
-			<s:message code="page.klienci.Telefon" var="telefon"/>
 			<div class="form-group row" style="width: 100%;">
-				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${telefon}:</strong>   <c:out value="${wartosci.telefon}"/>
-				</label>
+				<label for="Telefon" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.klienci.Telefon"/>:</strong></label>
+				<div class="col-3">
+					<form:input type="tel" class="form-control" path="telefon" name="telefon" value="${wartosci.telefon}" placeholder="xxx-xxx-xxx"/>
+					<sf:errors path="Telefon" class="text-danger" />
+				</div>
 			</div>
-			
-			<s:message code="page.parametry.Email" var="email"/>
-			<div class="form-group row" style="width: 100%;">
-				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${email}</strong>   <c:out value="${wartosci.email}"/>
-				</label>
-			</div>
+
+		<div align="center">
+			<button type="submit" class="btn btn-primary" name=zmien value="Zmien"><s:message code="page.parametry.Zmien"/></button>
+		</div>
+	</form:form>
 	</div>
+
 </body>
 
 </html>

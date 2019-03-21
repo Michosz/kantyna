@@ -109,61 +109,36 @@ pageEncoding="UTF-8"%>
 		</c:when>
 	</c:choose>-->
 	
-	<c:if test="${param.zamZatwierdzone == '1'}">
+	<!--<c:if test="${param.zamZatwierdzone == '1'}">
 		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
-	</c:if>
+	</c:if>-->
 	
 	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed">
 		<thead>
 			<tr>
-				<th><s:message code="page.zamowienia.Uzytkownik"/></th>
-				<th><s:message code="page.Uzytkownik.Email"/></th>
-				<th><s:message code="page.zamowienia.DataZamowienia"/></th>
-				<th><s:message code="page.zamowienie.Czas"/></th>
-				<th><s:message code="page.zamowienia.Stolik"/></th>
-				<th><s:message code="page.zamowienia.CzyZrealizowane"/></th>
-				<th><s:message code="page.zamowienia.ZamowionePotrawy"/></th>
+				<th><s:message code="page.Uzytkownicy.Imie"/></th>
+				<th><s:message code="page.Uzytkownicy.Nazwisko"/></th>
+				<th><s:message code="page.Uzytkownicy.Email"/></th>
+				<th><s:message code="page.Uzytkownicy.Telefon"/></th>
+				<th><s:message code="page.Uzytkownicy.Rola"/></th>
 			</tr>
 		</thead>
-		<c:forEach items="${listaZamowien}" var="zamowienie">
+		<c:forEach items="${uzytkownicy}" var="uzytk">
 		<tr>
 			<td>
-				<c:out value="${zamowienie.uzytkownik.imie}"/> <c:out value="${zamowienie.uzytkownik.nazwisko}"/>
+				<c:out value="${uzytk.imie}"/>
 			</td>
 			<td>
-				<c:out value="${zamowienie.uzytkownik.login}" />
+				<c:out value="${uzytk.nazwisko}" />
 			</td>
 			<td>
-				<c:out value="${zamowienie.dataZam}" />
+				<c:out value="${uzytk.login}" />
 			</td>
 			<td>
-				<c:out value="${zamowienie.czasRealizacji}" />
+				<c:out value="${uzytk.telefon}" />
 			</td>
 			<td>
-				<c:out value="${zamowienie.stolik.nazwa}" />
-			</td>
-			<td>
-				<c:if test="${zamowienie.czyZrealizowane}">
-					<s:message code="page.main.Tak"/>
-					<sec:authorize access="hasRole('MANAGER')">
-						<form:form id="zatwierdz${zamowienie.id}" class="zmienStatus" action="zatwierdzZamowienie?par=${zamowienie.id}" method="POST" onsubmit="return zatwierdzanie(${zamowienie.id}) ? true : false;">	
-							<button class="btn btn-primary" disabled name=dodaj value="DodajA" style="width: 100%"><s:message code="page.zamowienia.Zrealizuj"/></button>
-						</form:form>	
-					</sec:authorize>	
-				</c:if>
-				<c:if test="${not zamowienie.czyZrealizowane}">
-					<s:message code="page.main.Nie"/>
-					<sec:authorize access="hasRole('MANAGER')">
-						<form:form id="zatwierdz${zamowienie.id}" class="zmienStatus" action="zatwierdzZamowienie?par=${zamowienie.id}" method="POST" onsubmit="return zatwierdzanie(${zamowienie.id}) ? true : false;">	
-							<button class="btn btn-primary" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.zamowienia.Zrealizuj"/></button>
-						</form:form>	
-					</sec:authorize>	
-				</c:if>
-			</td>
-			<td>
-				<button id="potr" type="button" class="btn btn-primary" data-toggle="modal" style="width: 100%" data-target="#potrawy" onclick="wyswietlPotrawy(${zamowienie.id})">
-					<s:message code="page.zamowienia.ZamowionePotrawy"/>
-				</button>
+				<c:out value="${uzytk.rola.rola}" />
 			</td>
 		</tr>
 		</c:forEach>

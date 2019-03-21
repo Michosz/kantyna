@@ -101,8 +101,13 @@
 					<span class="btn btn-success active" onclick="zaznacz('czyAutoZwalniac', 'checkbox1')" style="height: 40px; width: 40px">
 						<i id="czyAutoZwalniac" class=""></i>
 					</span>
-		 			<form:checkbox id="checkbox1" path="czyAutoZwalniac" style="display: none" checked="${wartosci.czyAutoZwalniac}"/>
-			 	</div>
+					<c:if test="${wartosci.czyAutoZwalniac}">
+		 				<form:checkbox id="checkbox1" path="czyAutoZwalniac" style="display: none" checked="${wartosci.czyAutoZwalniac}"/>	 	
+		 			</c:if>
+		 			<c:if test="${not wartosci.czyAutoZwalniac}">
+		 				<form:checkbox id="checkbox1" path="czyAutoZwalniac" style="display: none"/>
+		 			</c:if>
+		 		</div>
 			</div>
 				
 			<s:message code="page.parametry.coIleZwalniac" var="coIleZwal"/>
@@ -125,8 +130,29 @@
 					<span class="btn btn-success active" onclick="zaznacz('czyZamkniete', 'checkbox2')" style="height: 40px; width: 40px">
 						<i id="czyZamkniete" class=""></i>
 					</span>
-		 			<form:checkbox id="checkbox2" path="czyZamkniete" style="display: none" checked="${wartosci.czyZamkniete}"/>
+					<c:if test="${wartosci.czyZamkniete}">
+		 				<form:checkbox id="checkbox2" path="czyZamkniete" style="display: none" checked="${wartosci.czyZamkniete}"/>
+		 			</c:if>
+		 			<c:if test="${not wartosci.czyZamkniete}">
+		 				<form:checkbox id="checkbox2" path="czyZamkniete" style="display: none"/>
+		 			</c:if>
 			 	</div>
+			</div>
+			
+			<div class="form-group row" style="width: 100%;">
+				<label for="Telefon" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.klienci.Telefon"/>:</strong></label>
+				<div class="col-3">
+					<form:input type="tel" class="form-control" path="telefon" name="telefon" value="${wartosci.telefon}" placeholder="xxx-xxx-xxx"/>
+					<sf:errors path="Telefon" class="text-danger" />
+				</div>
+			</div>
+			
+			<div class="form-group row" style="width: 100%;">
+				<label for="Telefon" class="col-md-1 offset-md-4 col-form-label" style="text-align: right"><strong><s:message code="page.parametry.Email"/></strong></label>
+				<div class="col-3">
+					<form:input type="text" class="form-control" path="email" name="email" value="${wartosci.email}" placeholder="example@gmail.com"/>
+					<sf:errors path="Email" class="text-danger" />
+				</div>
 			</div>
 		
 		<div align="center">

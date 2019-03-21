@@ -64,45 +64,31 @@
 	</div>
 	
 	<div id=fourth class="offset-md-3" style="border-style: solid; width: 50%">
-	
-			<s:message code="page.parametry.GodzinaOtwarcia" var="godzinaOtwar"/>
-			<div class="form-group row" style="width: 100%;">
-				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${godzinaOtwar}:</strong>   <c:out value="${wartosci.godzinaOtwarcia}"/>
-				</label>
-			</div>
-		
-			<s:message code="page.parametry.GodzinaZamkniecia" var="godzinaZam"/>
+			<s:message code="page.klienci.Imie" var="mimie"/>
 			<div class="form-group row" style="width: 100%;">
 				<label for="Nazwisko" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${godzinaZam}:</strong>  <c:out value="${wartosci.godzinaZamkniecia}"/>
+					<strong>${mimie}:</strong>  <c:out value="${konto.imie}"/>
 				</label>
 			</div>
 		
+	     	<s:message code="page.klienci.Nazwisko" var="mnazwisko"/>
 			<div class="form-group row" style="width: 100%;">
 				<label for="Login" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong><s:message code="page.parametry.SzukanieStolika"/>:</strong>  <c:out value="${wartosci.szukanieStolika}"/>
+					<strong>${mnazwisko}:</strong>  <c:out value="${konto.nazwisko}"/>
+				</label>
+			</div>
+			
+			<s:message code="page.logowanie.Login" var="mlogin"/>
+			<div class="form-group row" style="width: 100%;">
+				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
+					<strong>${mlogin}:</strong>   <c:out value="${konto.login}"/>
 				</label>
 			</div>
 					
-			<s:message code="page.parametry.coIleZwalniac" var="coIleZwal"/>
+			<s:message code="page.klienci.Telefon" var="mtelefon"/>
 			<div class="form-group row" style="width: 100%;">
 				<label for="Nazwisko" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${coIleZwal}:</strong>  <c:out value="${wartosci.coIleZwalniac}"/>
-				</label>
-			</div>
-			
-			<s:message code="page.klienci.Telefon" var="telefon"/>
-			<div class="form-group row" style="width: 100%;">
-				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${telefon}:</strong>   <c:out value="${wartosci.telefon}"/>
-				</label>
-			</div>
-			
-			<s:message code="page.parametry.Email" var="email"/>
-			<div class="form-group row" style="width: 100%;">
-				<label for="Imie" class="col-md-5 offset-md-4 col-form-label" style="text-align: left">
-					<strong>${email}</strong>   <c:out value="${wartosci.email}"/>
+					<strong>${mtelefon}:</strong>  <c:out value="${konto.telefon}"/>
 				</label>
 			</div>
 	</div>

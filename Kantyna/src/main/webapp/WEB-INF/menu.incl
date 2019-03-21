@@ -38,14 +38,11 @@
        <sec:authorize access="isAuthenticated()">
       	<li class="nav-item dropdown">
 	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	        	<s:message code="nav.Zamowienia"/>
+	        	<s:message code="nav.Konto"/>
 	        </a>
 	        <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
-	          <a class="dropdown-item" href="/zamowienia" style="color: grey"> <s:message code="nav.PokazZamowieniaZrealizowane"/></a>
-	          <a class="dropdown-item" href="/zamowieniaAkt" style="color: grey"> <s:message code="nav.PokazZamowieniaAktualne"/></a>	    
-	           <sec:authorize access="hasRole('KLIENT')">
-	           	  <a class="dropdown-item" href="/zamowienie" style="color: grey"> <s:message code="nav.ZlozZamowienie"/></a>
-	           </sec:authorize>
+	          <a class="dropdown-item" href="/konto" style="color: grey"> <s:message code="nav.PokazSzczegoly"/></a>
+	          <a class="dropdown-item" href="/edytuj" style="color: grey"> <s:message code="nav.EdytujDane"/></a>	    
 	        </div>
 	      </li>
       </sec:authorize>
@@ -60,15 +57,32 @@
 	        <a class="nav-link" href="/info"><s:message code="nav.Info"/></a>
         </li>
       </sec:authorize>
+      <sec:authorize access="isAuthenticated()">
+    	<li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<s:message code="nav.Zamowienia"/>
+			</a>
+			<div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+			  <a class="dropdown-item" href="/zamowienia" style="color: grey"> <s:message code="nav.PokazZamowieniaZrealizowane"/></a>
+			  <a class="dropdown-item" href="/zamowieniaAkt" style="color: grey"> <s:message code="nav.PokazZamowieniaAktualne"/></a>	    
+			</div>   
+	    </li> 
+      </sec:authorize>
       <sec:authorize access="hasRole('MANAGER')">
   	  	<li class="nav-item">
     		<a class="nav-link" href="/parametry"><s:message code="page.main.Parametry"/></a>
   		</li>
       </sec:authorize>
       <sec:authorize access="hasRole('MANAGER')">
-      	<li class="nav-item">
-      		<a class="nav-link" href="/rejestracja"><s:message code="nav.StworzKonto"/></a>
-      	</li>
+		<li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<s:message code="nav.ZarzadzanieUzytkownikami"/>
+			</a>
+			<div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+			  	<a class="dropdown-item" href="/rejestracja" style="color: grey"><s:message code="nav.StworzKonto"/></a>
+				<a class="dropdown-item"" href="/listaUzytk" style="color: grey"><s:message code="nav.ListaUzytkownikow"/></a>
+			</div>   
+		</li>
       </sec:authorize>
       <c:set var="localeCode" value="${pageContext.response.locale}" />
 	  	<c:choose>

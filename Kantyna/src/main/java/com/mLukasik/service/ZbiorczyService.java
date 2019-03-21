@@ -16,10 +16,12 @@ import com.mLukasik.model.Potrawa;
 import com.mLukasik.model.Potrawy_Zamowienia;
 import com.mLukasik.model.RodzajPotrawy;
 import com.mLukasik.model.Rola;
+import com.mLukasik.model.Uzytkownik;
 import com.mLukasik.model.Zamowienie;
 import com.mLukasik.repository.PotrawaRepository;
 import com.mLukasik.repository.RodzajPotrawyRepository;
 import com.mLukasik.repository.RolaRepository;
+import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +38,8 @@ public class ZbiorczyService
 	private PotrawaRepository potrawaRepository;
 	@Autowired
 	private ZamowienieRepository zamowienieRepository;
+	@Autowired
+	private UzytkownikRepository uzytkownikRepository;
 	
 	public List<String> stworzListeRodzajow()
 	{
@@ -179,6 +183,32 @@ public class ZbiorczyService
 			}
 		}
 		return listaZamowien;
+	}
+	
+	public boolean czyTelefonIstnieje(String telefon)
+	{
+		List<Uzytkownik> listaU = uzytkownikRepository.findByTelefon(telefon);
+		if(listaU.size() > 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	public boolean czyLoginIstnieje(String login)
+	{
+		List<Uzytkownik> listaU = uzytkownikRepository.findByLogin(login);
+		if(listaU.size() > 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	//chyba zbedne
 	/*public LocalTime coIleMilisekundZwalniac()
