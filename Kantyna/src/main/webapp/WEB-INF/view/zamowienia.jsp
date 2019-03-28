@@ -117,7 +117,7 @@ pageEncoding="UTF-8"%>
 		<thead>
 			<tr>
 				<th><s:message code="page.zamowienia.Uzytkownik"/></th>
-				<th><s:message code="page.Uzytkownik.Email"/></th>
+				<th><s:message code="page.Uzytkownicy.Email"/></th>
 				<th><s:message code="page.zamowienia.DataZamowienia"/></th>
 				<th><s:message code="page.zamowienie.Czas"/></th>
 				<th><s:message code="page.zamowienia.Stolik"/></th>

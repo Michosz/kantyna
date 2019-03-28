@@ -7,5 +7,6 @@ import com.mLukasik.model.Komentarz;
 public interface KomentarzRepository extends CrudRepository<Komentarz, Integer>
 {
 	List<Komentarz> findById(int id);
+	List<Komentarz> findByPotrawaId(int idPot);
 	List<Komentarz> findAll();
 }

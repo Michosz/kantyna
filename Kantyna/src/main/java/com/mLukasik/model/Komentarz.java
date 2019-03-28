@@ -33,6 +33,7 @@ public class Komentarz
 	@JoinColumn(name = "id_uzytkownika", nullable = false)
 	private Uzytkownik uzytkownik;
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "id_potrawy", nullable = false)
 	private Potrawa potrawa;

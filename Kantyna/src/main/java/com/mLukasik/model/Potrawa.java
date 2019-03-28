@@ -60,6 +60,9 @@ public class Potrawa
 	@Transient
 	private String rodzajPot;
 	
+	@Transient
+	private boolean czySaKomentarze;
+	
 	@ManyToOne
 	@JoinColumn(name = "id_rodzaju", nullable = false)
 	private RodzajPotrawy rodzajPotrawy;
@@ -204,5 +207,15 @@ public class Potrawa
 	public void setCenaPromocyjna(double cenaPromocyjna) 
 	{
 		this.cenaPromocyjna = cenaPromocyjna;
+	}
+	
+	public boolean getCzySaKomentarze() 
+	{
+		return czySaKomentarze;
+	}
+
+	public void setCzySaKomentarze(boolean czySaKomentarze) 
+	{
+		this.czySaKomentarze = czySaKomentarze;
 	}
 }

@@ -23,6 +23,7 @@ import com.mLukasik.model.Komentarz;
 import com.mLukasik.model.Koszyk;
 import com.mLukasik.model.Parametry;
 import com.mLukasik.model.Potrawa;
+import com.mLukasik.model.RodzajPotrawy;
 import com.mLukasik.model.Rola;
 import com.mLukasik.model.Stolik;
 import com.mLukasik.model.Uzytkownik;
@@ -31,6 +32,7 @@ import com.mLukasik.repository.KomentarzRepository;
 import com.mLukasik.repository.KoszykRepository;
 import com.mLukasik.repository.ParametryRepository;
 import com.mLukasik.repository.PotrawaRepository;
+import com.mLukasik.repository.RodzajPotrawyRepository;
 import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.StolikRepository;
 import com.mLukasik.repository.UzytkownikRepository;
@@ -58,6 +60,8 @@ public class MobController
 	@Autowired
 	RolaRepository rolaRepository;
 	@Autowired
+	RodzajPotrawyRepository rodzajPotrawyRepository;
+	@Autowired
 	private MessageSource messageSource;
 	
 	//pobieranie parametrow i stolikow - wstepnie zrobione,
@@ -70,7 +74,34 @@ public class MobController
 	{
 		List<Potrawa> potrawy = new ArrayList<Potrawa>();
 		potrawy = potrawaRepository.findAll();
+		for(int i = 0; i < potrawy.size(); i++)
+		{
+			if(potrawy.get(i).getListaKomentarzy().size() > 0)
+			{
+				potrawy.get(i).setCzySaKomentarze(true);
+			}
+			else
+			{
+				potrawy.get(i).setCzySaKomentarze(false);
+			}
+		}
 		return ResponseEntity.ok(potrawy); //mozna zwrocic tylko jedna liste obiektow
+	}
+	
+	@RequestMapping(value = "/api/rodzaje", method = RequestMethod.GET)
+	public ResponseEntity listaRodzajow()
+	{
+		List<RodzajPotrawy> rodzaje = new ArrayList<RodzajPotrawy>();
+		rodzaje = rodzajPotrawyRepository.findAll();
+		return ResponseEntity.ok(rodzaje);
+	}
+	
+	@RequestMapping(value = "/api/komentarze/{idPot}", method = RequestMethod.GET)
+	public ResponseEntity pokazKomentarze(@PathVariable("idPot") int idPot)
+	{
+		List<Komentarz> komentarze = new ArrayList<Komentarz>();
+		komentarze = komentarzRepository.findByPotrawaId(idPot);
+		return ResponseEntity.ok(komentarze);
 	}
 	
 	@RequestMapping(value = "/api/menu2", method = RequestMethod.GET)
