@@ -113,7 +113,7 @@ pageEncoding="UTF-8"%>
 		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
 	</c:if>
 	
-	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed">
+	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed; display: none">
 		<thead>
 			<tr>
 				<th><s:message code="page.zamowienia.Uzytkownik"/></th>
@@ -270,7 +270,9 @@ pageEncoding="UTF-8"%>
 		
 			$(document).ready(function() 
 			{
+				var table = document.getElementById("zamowienia");
 				stronicowanie();
+				table.style.display = "";
 			});
 		
 				function wyswietlPotrawy(id) 

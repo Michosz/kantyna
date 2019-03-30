@@ -112,7 +112,7 @@ pageEncoding="UTF-8"%>
 		</c:when>
 	</c:choose>
 	
-	<table class="table table-bordered table-striped table-dark" id="stoliki" style="table-layout: fixed">
+	<table class="table table-bordered table-striped table-dark" id="stoliki" style="table-layout: fixed; display: none">
 		<thead>
 			<tr>
 				<th><s:message code="page.stoliki.Nazwa"/></th>
@@ -260,7 +260,9 @@ pageEncoding="UTF-8"%>
 	
 		$(document).ready(function() 
 		{
+			var table = document.getElementById("stoliki");
 			stronicowanie();
+			table.style.display = "";
 		});
 	</script>
 		

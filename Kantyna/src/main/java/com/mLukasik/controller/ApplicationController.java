@@ -585,7 +585,6 @@ public class ApplicationController
 		}
 	}
 	
-	//metoda do wyswietlania zamowien, wstepnie frontend jest zrobiony
 	@RequestMapping(value = "/zamowienia", method = RequestMethod.GET)
 	public String pokazZamowienia(HttpServletRequest request, Model model)
 	{

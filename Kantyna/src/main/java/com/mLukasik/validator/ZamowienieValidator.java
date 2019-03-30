@@ -49,7 +49,7 @@ public class ZamowienieValidator implements Validator
 		boolean zlyFormatGodziny = false;
 		for(int i = 0; i < koszyk.size(); i++)
 		{
-			if(koszyk.get(i).getPotrawa().getCzyJestDostepna())
+			if(!koszyk.get(i).getPotrawa().getCzyJestDostepna())
 			{
 				czyPotrawaNiedostepna = true;
 			}

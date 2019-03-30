@@ -84,11 +84,18 @@ public class UzytkownikValidator implements Validator
 	{
 		Uzytkownik uzytkownik = (Uzytkownik)obj;
 		String telefonRegex = "[0-9]{3}-[0-9]{3}-[0-9]{3}";
-		Pattern pattern = Pattern.compile(telefonRegex);
-	    Matcher matcher = pattern.matcher(uzytkownik.getTelefon());
-        if(uzytkownik.getTelefon() != null && !matcher.matches())
+		if(uzytkownik.getTelefon() == null)
+		{
+			err.rejectValue("Telefon", "error.zlyFormat");
+		}
+		else if(uzytkownik.getTelefon() != null)
         {
-        	err.rejectValue("Telefon", "error.zlyFormat");
+    		Pattern pattern = Pattern.compile(telefonRegex);
+    	    Matcher matcher = pattern.matcher(uzytkownik.getTelefon());
+    	    if(!matcher.matches())
+        	{
+    	    	err.rejectValue("Telefon", "error.zlyFormat");
+        	}
         }
         if(czyTelefonIstnieje)
         {

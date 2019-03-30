@@ -118,6 +118,172 @@ pageEncoding="UTF-8"%>
 	</style>
 	
 	<script>
+		function onClick(source) 
+		{
+			document.getElementById("wiekszyObrazek").src = source;
+		}
+	
+		function stronicowanie(selected)
+		{
+		 	var table = document.getElementById("potrawy");
+		 	/*var tr = table.getElementsByTagName("tr");
+			for (i = 0; i < tr.length; i++) 
+	  		{
+				tr[i].style.display = "none";
+	  		}*/
+		 	
+			var td, txtValue;
+			var przyc = document.getElementById("przyciski");
+			przyc.innerHTML = '';
+			var ileNaStrone = 1; //trzeba zmienic w funkcji ponizej jesli tu zmienie
+			var ileStron = Math.ceil(${iloscRekordow}/ileNaStrone);
+			var buttony = document.getElementById("przyciski");
+			for(i = 0; i < ileStron; i++)
+			{
+				var btn = document.createElement("BUTTON");
+				btn.id = i + 1;
+				var t = document.createTextNode(i + 1);
+				btn.appendChild(t);
+				btn.className = "btn btn-primary";
+				btn.onclick = function(){wyswietlRekordy()};
+				buttony.appendChild(btn);
+				if(i > 2 && i < ileStron - 1)
+				{
+					btn.style.display = "none";
+				}
+				if(i == 0)
+				{
+					btn.disabled = true;		
+				}
+			}
+			
+		 	var tr = table.getElementsByTagName("tr");
+			for (i = 0; i < tr.length; i++) 
+	  		{
+				td = tr[i].getElementsByTagName("td")[4];
+				if(td)
+				{
+				    txtValue = td.textContent || td.innerText;
+					if(i <= ileNaStrone)
+					{
+						tr[i].style.display = "";
+					}
+					else
+					{
+						tr[i].style.display = "none";
+					}
+	  			}
+	  		}
+		}
+		
+		function wyswietlRekordy()
+		{
+			var ileNaStrone = 1;
+			var ileStron = Math.ceil(${iloscRekordow}/ileNaStrone);
+    		var table, tr, td, i, txtValue;
+		  	table = document.getElementById("potrawy");
+		 	tr = table.getElementsByTagName("tr");
+		 	var ktoryButton;
+		 	var txt;
+		 	window.onclick = e => 
+		 	{
+		 	    ktoryButton = e.srcElement.id
+		 	    if(e.target.parentNode.id == "przyciski")
+		 	    {
+		 	    	for (i = 0; i < tr.length; i++) 
+			  		{
+				    	if(i == 0)
+				    	{
+				    		tr[i].style.display = "";
+				    	}
+				    	else if( (i >= (((ktoryButton - 1) * ileNaStrone) + 1)) & (i <= (((ktoryButton - 1) * ileNaStrone) + ileNaStrone)) ) //pierwszy rzad to naglowek, wiec wlasciwe rzedy zaczynaja sie od 1
+					    {
+				    		tr[i].style.display = "";
+					    }
+				        else 
+				        {
+				        	tr[i].style.display = "none";
+				        }
+				  	}
+			 	    //widocznosc innych przyciskow
+			 	    var ojciec = e.srcElement.parentNode;
+			 	    var buttony = ojciec.children;
+			 	    console.log(buttony.length);
+			 	    for(j = 0; j < buttony.length; j++)
+			 	    {
+			 	    	console.log(buttony[j].id);
+			 	    	buttony[j].disabled = false;
+			 	    	if(j > ileStron - 2 || j < 1)
+			 	    	{
+			 	    		buttony[j].style.display = "";
+			 	    	}
+			 	    	else if(j >= e.srcElement.id - 3 && j <= parseInt(e.srcElement.id) + 1)
+		 	    		{
+		 	    			buttony[j].style.display = "";
+		 	    		}
+			 	    	else
+			 	    	{
+			 	    		buttony[j].style.display = "none";
+			 	    	}
+		 	    	}
+		 	   	 	e.srcElement.disabled = true;
+				}
+		 	}
+		}
+		
+		function wyswietlKomentarze(id) 
+		{
+			var table, tr, td, i, txtValue;
+		  	table = document.getElementById("komenty");
+			tr = table.getElementsByTagName("tr");
+			for (i = 0; i < tr.length; i++) 
+			{
+				td = tr[i].getElementsByTagName("td")[0];
+				if (td)
+				{
+				     txtValue = td.textContent || td.innerText;
+				     if (txtValue.includes(id)) 
+				     {
+				     	tr[i].style.display = "";
+				     } 
+				     else 
+				     {
+				     	tr[i].style.display = "none";
+				     }
+				}
+			}
+		}
+		
+		$(document).ready(function() 
+		{		
+			var table = document.getElementById("potrawy");
+			
+		 	stronicowanie("wszystkie");
+			var url = new URL(window.location.href);
+			var naz = url.searchParams.get("nazwa");
+			document.getElementById("nazwaPotrawy").value = naz;
+		    $("#rodzaje").change(function () 
+		   	{
+		    	txt = String($("#rodzaje").val());
+		    	txt2 = String($('#nazwaPotrawy').val());
+		    	window.location.replace('/?rodzaj=' + txt + '&nazwa=' + txt2);
+		    });
+			table.style.display = "";
+		});
+			
+		function szukajPoNazwie(event)
+		{
+			stronicowanie("wszystkie");
+			if(event.key == 'Enter') 
+			{
+				var url = new URL(window.location.href);
+				var c = url.searchParams.get("nazwa");
+				txt = String($("#rodzaje").val());
+		    	txt2 = String($('#nazwaPotrawy').val());
+		    	window.location.replace('/?rodzaj=' + txt + '&nazwa=' + txt2);
+			}
+		}
+
 	/*jesli bedzie w window.location.href bez https to dodaje do aktualnego adresu, w przeciwnym razie przenosi na wskazany*/
 	$(document).ready(function () 
 	{
@@ -251,7 +417,7 @@ pageEncoding="UTF-8"%>
 			</div>
 		</div>
 		
-		<table class="table table-bordered table-striped table-dark" id="potrawy" style="table-layout: fixed">
+		<table class="table table-bordered table-striped table-dark" id="potrawy" style="table-layout: fixed; display: none">
 			<thead>
 				<tr>
 					<th style="width: 220px"><s:message code="page.main.Obrazek"/></th>
@@ -368,164 +534,7 @@ pageEncoding="UTF-8"%>
 		
 		</div>
 
-	<script>
-		function onClick(source) 
-		{
-			document.getElementById("wiekszyObrazek").src = source;
-		}
 	
-		function stronicowanie(selected)
-		{
-			var td, txtValue;
-			var przyc = document.getElementById("przyciski");
-			przyc.innerHTML = '';
-			var ileNaStrone = 1; //trzeba zmienic w funkcji ponizej jesli tu zmienie
-			var ileStron = Math.ceil(${iloscRekordow}/ileNaStrone);
-			var buttony = document.getElementById("przyciski");
-			for(i = 0; i < ileStron; i++)
-			{
-				var btn = document.createElement("BUTTON");
-				btn.id = i + 1;
-				var t = document.createTextNode(i + 1);
-				btn.appendChild(t);
-				btn.className = "btn btn-primary";
-				btn.onclick = function(){wyswietlRekordy()};
-				buttony.appendChild(btn);
-				if(i > 2 && i < ileStron - 1)
-				{
-					btn.style.display = "none";
-				}
-				if(i == 0)
-				{
-					btn.disabled = true;		
-				}
-			}
-		 	var table = document.getElementById("potrawy");
-		 	var tr = table.getElementsByTagName("tr");
-			for (i = 0; i < tr.length; i++) 
-	  		{
-				td = tr[i].getElementsByTagName("td")[4];
-				if(td)
-				{
-				    txtValue = td.textContent || td.innerText;
-					if(i <= ileNaStrone)
-					{
-						tr[i].style.display = "";
-					}
-					else
-					{
-						tr[i].style.display = "none";
-					}
-	  			}
-	  		}
-		}
-		
-		function wyswietlRekordy()
-		{
-			var ileNaStrone = 1;
-			var ileStron = Math.ceil(${iloscRekordow}/ileNaStrone);
-    		var table, tr, td, i, txtValue;
-		  	table = document.getElementById("potrawy");
-		 	tr = table.getElementsByTagName("tr");
-		 	var ktoryButton;
-		 	var txt;
-		 	window.onclick = e => 
-		 	{
-		 	    ktoryButton = e.srcElement.id
-		 	    if(e.target.parentNode.id == "przyciski")
-		 	    {
-		 	    	for (i = 0; i < tr.length; i++) 
-			  		{
-				    	if(i == 0)
-				    	{
-				    		tr[i].style.display = "";
-				    	}
-				    	else if( (i >= (((ktoryButton - 1) * ileNaStrone) + 1)) & (i <= (((ktoryButton - 1) * ileNaStrone) + ileNaStrone)) ) //pierwszy rzad to naglowek, wiec wlasciwe rzedy zaczynaja sie od 1
-					    {
-				    		tr[i].style.display = "";
-					    }
-				        else 
-				        {
-				        	tr[i].style.display = "none";
-				        }
-				  	}
-			 	    //widocznosc innych przyciskow
-			 	    var ojciec = e.srcElement.parentNode;
-			 	    var buttony = ojciec.children;
-			 	    console.log(buttony.length);
-			 	    for(j = 0; j < buttony.length; j++)
-			 	    {
-			 	    	console.log(buttony[j].id);
-			 	    	buttony[j].disabled = false;
-			 	    	if(j > ileStron - 2 || j < 1)
-			 	    	{
-			 	    		buttony[j].style.display = "";
-			 	    	}
-			 	    	else if(j >= e.srcElement.id - 3 && j <= parseInt(e.srcElement.id) + 1)
-		 	    		{
-		 	    			buttony[j].style.display = "";
-		 	    		}
-			 	    	else
-			 	    	{
-			 	    		buttony[j].style.display = "none";
-			 	    	}
-		 	    	}
-		 	   	 	e.srcElement.disabled = true;
-				}
-		 	}
-		}
-		
-		function wyswietlKomentarze(id) 
-		{
-		  var table, tr, td, i, txtValue;
-		  table = document.getElementById("komenty");
-		  tr = table.getElementsByTagName("tr");
-		  for (i = 0; i < tr.length; i++) 
-		  {
-		    td = tr[i].getElementsByTagName("td")[0];
-		    if (td)
-		    {
-		      txtValue = td.textContent || td.innerText;
-		      if (txtValue.includes(id)) 
-		      {
-		        tr[i].style.display = "";
-		      } 
-		      else 
-		      {
-		        tr[i].style.display = "none";
-		      }
-		    }
-		  }
-		}
-			
-		$(document).ready(function() 
-		{
-			stronicowanie("wszystkie");
-			var url = new URL(window.location.href);
-			var naz = url.searchParams.get("nazwa");
-			document.getElementById("nazwaPotrawy").value = naz;
-		    $("#rodzaje").change(function () 
-		   	{
-		    	txt = String($("#rodzaje").val());
-		    	txt2 = String($('#nazwaPotrawy').val());
-		    	window.location.replace('/?rodzaj=' + txt + '&nazwa=' + txt2);
-		    });
-		});
-			
-		function szukajPoNazwie(event)
-		{
-			stronicowanie("wszystkie");
-			if(event.key == 'Enter') 
-			{
-				var url = new URL(window.location.href);
-				var c = url.searchParams.get("nazwa");
-				txt = String($("#rodzaje").val());
-		    	txt2 = String($('#nazwaPotrawy').val());
-		    	window.location.replace('/?rodzaj=' + txt + '&nazwa=' + txt2);
-			}
-		}
-		</script>
-		
 			<div class="modal fade" id="komentarze" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			  <div class="modal-dialog" role="document">
 			    <div class="modal-content">

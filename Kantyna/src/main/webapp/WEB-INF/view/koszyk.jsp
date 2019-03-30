@@ -139,7 +139,7 @@ pageEncoding="UTF-8"%>
 	<form:form id="usunWszystko" class="zmienStatus" action="usunWszystko" method="POST" onsubmit="return usuwanieWszystko() ? true : false;">	
 		<button type="submit" class="btn btn-danger" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.koszyk.UsunWszystko"/></button>
 	</form:form>
-	<table class="table table-bordered table-striped table-dark" id="potrawy" style="table-layout: fixed">
+	<table class="table table-bordered table-striped table-dark" id="potrawy" style="table-layout: fixed; display: none">
 		<thead>
 			<tr>
 				<th style="width: 220px"><s:message code="page.main.Obrazek"/></th>
@@ -315,7 +315,9 @@ pageEncoding="UTF-8"%>
 	
 		$(document).ready(function() 
 		{
+		  	var table = document.getElementById("potrawy");
 			stronicowanie();
+			table.style.display = "";
 		});
 	
 		function onClick(source) 
