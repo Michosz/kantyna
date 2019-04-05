@@ -116,8 +116,10 @@ pageEncoding="UTF-8"%>
 	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed; display: none">
 		<thead>
 			<tr>
-				<th><s:message code="page.zamowienia.Uzytkownik"/></th>
-				<th><s:message code="page.Uzytkownicy.Email"/></th>
+			  	<sec:authorize access="hasRole('MANAGER')">
+					<th><s:message code="page.zamowienia.Uzytkownik"/></th>
+					<th><s:message code="page.Uzytkownicy.Email"/></th>
+				</sec:authorize>
 				<th><s:message code="page.zamowienia.DataZamowienia"/></th>
 				<th><s:message code="page.zamowienie.Czas"/></th>
 				<th><s:message code="page.zamowienia.Stolik"/></th>
@@ -127,12 +129,14 @@ pageEncoding="UTF-8"%>
 		</thead>
 		<c:forEach items="${listaZamowien}" var="zamowienie">
 		<tr>
-			<td>
-				<c:out value="${zamowienie.uzytkownik.imie}"/> <c:out value="${zamowienie.uzytkownik.nazwisko}"/>
-			</td>
-			<td>
-				<c:out value="${zamowienie.uzytkownik.login}" />
-			</td>
+			<sec:authorize access="hasRole('MANAGER')">
+				<td>
+					<c:out value="${zamowienie.uzytkownik.imie}"/> <c:out value="${zamowienie.uzytkownik.nazwisko}"/>
+				</td>
+				<td>
+					<c:out value="${zamowienie.uzytkownik.login}" />
+				</td>
+			</sec:authorize>
 			<td>
 				<c:out value="${zamowienie.dataZam}" />
 			</td>

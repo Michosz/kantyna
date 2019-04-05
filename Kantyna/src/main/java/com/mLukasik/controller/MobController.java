@@ -38,6 +38,7 @@ import com.mLukasik.repository.KomentarzRepository;
 import com.mLukasik.repository.KoszykRepository;
 import com.mLukasik.repository.ParametryRepository;
 import com.mLukasik.repository.PotrawaRepository;
+import com.mLukasik.repository.Potrawy_ZamowieniaRepository;
 import com.mLukasik.repository.RodzajPotrawyRepository;
 import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.StolikRepository;
@@ -71,6 +72,8 @@ public class MobController
 	RolaRepository rolaRepository;
 	@Autowired
 	RodzajPotrawyRepository rodzajPotrawyRepository;
+	@Autowired
+	Potrawy_ZamowieniaRepository potrawy_ZamowieniaRepository;
 	@Autowired
 	private MessageSource messageSource;
 	
@@ -118,7 +121,7 @@ public class MobController
 		komentarze = komentarzRepository.findByPotrawaId(idPot);
 		return ResponseEntity.ok(komentarze);
 	}
-	
+	//w przyszlosci usunac, tylko do testow
 	@RequestMapping(value = "/api/menu2", method = RequestMethod.GET)
 	public ResponseEntity menu2()
 	{
@@ -241,9 +244,23 @@ public class MobController
 	@RequestMapping(value = "/api/zamowienia", method = RequestMethod.GET)
 	public ResponseEntity zamowieniaKlienta()
 	{
+		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
+		uzytkownik = uzytkownikRepository.findAll();
+		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
-		zamowienia = zamowienieRepository.findAll();
+		zamowienia = zamowienieRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
 		return ResponseEntity.ok(zamowienia);
+	}
+	
+	@RequestMapping(value = "/api/zamowienie/{id}", method = RequestMethod.GET)
+	public ResponseEntity zamowionePotrawy(@PathVariable("id") int id)
+	{
+		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
+		uzytkownik = uzytkownikRepository.findAll();
+		
+		List<Potrawy_Zamowienia> potrawy = new ArrayList<Potrawy_Zamowienia>();
+		potrawy = potrawy_ZamowieniaRepository.findByZamowienieId(id);
+		return ResponseEntity.ok(potrawy);
 	}
 	
 	@PostMapping(value = "/api/zlozZamowienie/{jezyk}")
@@ -345,11 +362,14 @@ public class MobController
 		}
 	}
 	
-	@RequestMapping(value = "/api/koszyk/{login}", method = RequestMethod.GET)
-	public ResponseEntity koszykKlienta(@PathVariable("login") String login)
+	@RequestMapping(value = "/api/koszyk", method = RequestMethod.GET)
+	public ResponseEntity koszykKlienta()
 	{
+		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
+		uzytkownik = uzytkownikRepository.findAll();
+		
 		List<Koszyk> koszyk = new ArrayList<Koszyk>();
-		koszyk = koszykRepository.findByUzytkownikLogin(login);
+		koszyk = koszykRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
 		return ResponseEntity.ok(koszyk);
 	}
 	

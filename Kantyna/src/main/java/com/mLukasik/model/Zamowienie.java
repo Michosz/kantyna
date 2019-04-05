@@ -21,7 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.criteria.Fetch;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -56,7 +56,8 @@ public class Zamowienie
 	@JoinColumn(name = "id_uzytkownika", nullable = false)
 	private Uzytkownik uzytkownik;
 	
-	@JsonIgnoreProperties("zamowienie") //unikanie nieskonczonej rekursji
+	@JsonIgnore
+	//@JsonIgnoreProperties("zamowienie") //unikanie nieskonczonej rekursji
 	@OneToMany(mappedBy = "zamowienie", cascade=CascadeType.ALL) //mappedBy = cos - nazwa obiektu w innej klasie
 	//cascade all - zapisujesz wszystko co powiazane z ta klasa do bazy
 	private List<Potrawy_Zamowienia> potrawy_Zamowienia = new ArrayList<Potrawy_Zamowienia>();
