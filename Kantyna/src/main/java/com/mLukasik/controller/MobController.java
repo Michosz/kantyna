@@ -1,18 +1,28 @@
 package com.mLukasik.controller;
 
 import java.net.URI;
+import java.security.Principal;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -86,6 +96,11 @@ public class MobController
 	
 	//wstepnie zrobione metody post: dodawanie do koszyka, usuwanie z koszyka wszystkiego i jednej pozycji
 	//trzeba dopisac metody typu post: tworzenie zamowienia, modyfikowanie telefonu i hasla
+	
+	/*@RequestMapping(value = "/token", method = RequestMethod.GET)
+    public String getToken(@AuthenticationPrincipal TokenUserDetails principal) {
+        return principal.getToken();
+    }*/
 	
 	@RequestMapping(value = "/api/menu", method = RequestMethod.GET)
 	public ResponseEntity menu()
@@ -174,9 +189,23 @@ public class MobController
 		return ResponseEntity.ok(potrawy2);
 	}
 
+	//@PreAuthorize("hasRole('KLIENT')")
 	@RequestMapping(value = "/api/parametry", method = RequestMethod.GET)
-	public ResponseEntity parametry()
+	public ResponseEntity parametry(HttpServletRequest request)
 	{
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		if (principal instanceof UserDetails) {
+		String username = ((UserDetails)principal).getUsername();
+		System.out.println(username);
+		} else {
+		String username = principal.toString();
+		System.out.println(username);
+		}
+	
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    System.out.println("logged in user name: " + authentication.getName());
+		
 		List<Parametry> parametry = new ArrayList<Parametry>();
 		parametry = parametryRepository.findByIdParametru(1);
 		return ResponseEntity.ok(parametry.get(0));
@@ -241,14 +270,25 @@ public class MobController
 		return ResponseEntity.ok(stoliki);
 	}
 	
-	@RequestMapping(value = "/api/zamowienia", method = RequestMethod.GET)
-	public ResponseEntity zamowieniaKlienta()
+	@RequestMapping(value = "/api/zamowieniaAktualne", method = RequestMethod.GET)
+	public ResponseEntity zamowieniaAktualne()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
 		uzytkownik = uzytkownikRepository.findAll();
 		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
-		zamowienia = zamowienieRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
+		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneFalse(uzytkownik.get(0).getLogin());
+		return ResponseEntity.ok(zamowienia);
+	}
+	
+	@RequestMapping(value = "/api/zamowieniaZrealizowane", method = RequestMethod.GET)
+	public ResponseEntity zamowieniaZrealizowane()
+	{
+		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
+		uzytkownik = uzytkownikRepository.findAll();
+		
+		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
+		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneTrue(uzytkownik.get(0).getLogin());
 		return ResponseEntity.ok(zamowienia);
 	}
 	
