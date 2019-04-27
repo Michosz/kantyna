@@ -147,6 +147,17 @@ public class MobController
 		{
 			potrawy2.add(potrawy.get(i));
 		}
+		for(int i = 0; i < potrawy2.size(); i++)
+		{
+			if(potrawy.get(i).getListaKomentarzy().size() > 0)
+			{
+				potrawy.get(i).setCzySaKomentarze(true);
+			}
+			else
+			{
+				potrawy.get(i).setCzySaKomentarze(false);
+			}
+		}
 		return ResponseEntity.ok(potrawy2); //mozna zwrocic tylko jedna liste obiektow
 	}
 	
@@ -186,6 +197,17 @@ public class MobController
 		{
 			potrawy2 = potrawy;
 		}
+		for(int i = 0; i < potrawy2.size(); i++)
+		{
+			if(potrawy2.get(i).getListaKomentarzy().size() > 0)
+			{
+				potrawy2.get(i).setCzySaKomentarze(true);
+			}
+			else
+			{
+				potrawy2.get(i).setCzySaKomentarze(false);
+			}
+		}
 		return ResponseEntity.ok(potrawy2);
 	}
 
@@ -193,42 +215,47 @@ public class MobController
 	@RequestMapping(value = "/api/parametry", method = RequestMethod.GET)
 	public ResponseEntity parametry(HttpServletRequest request)
 	{
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-		if (principal instanceof UserDetails) {
-		String username = ((UserDetails)principal).getUsername();
-		System.out.println(username);
-		} else {
-		String username = principal.toString();
-		System.out.println(username);
-		}
-	
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    System.out.println("logged in user name: " + authentication.getName());
-		
 		List<Parametry> parametry = new ArrayList<Parametry>();
 		parametry = parametryRepository.findByIdParametru(1);
 		return ResponseEntity.ok(parametry.get(0));
 	}
-	
-	@RequestMapping(value = "/api/konto", method = RequestMethod.GET)
-	public ResponseEntity konto()
+	//dodac w mobilce po odbierze tokena wywolanie tej metody, zeby sprawdzic czy uzytkownik to klient
+	@RequestMapping(value = "/api/konto/{jezyk}", method = RequestMethod.GET)
+	public ResponseEntity konto(@PathVariable("jezyk") String jezyk)
 	{
+		//to
+		/*Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String username = principal.toString();
+		System.out.println("dupa " + username);*/
+		//lub to by odczytac login
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    //System.out.println("logged in user name: " + authentication.getName());
+		//zmnienic w ponizszm kodzie findall na findbylogin i jako parametr authentication.getname
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//uzytkownik = uzytkownikRepository.findAll();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
 		List<Uzytkownik> dane = new ArrayList<Uzytkownik>();
-		dane = uzytkownikRepository.findByLogin(uzytkownik.get(0).getLogin());
-		return ResponseEntity.ok(dane.get(0));
+		dane = uzytkownik;//uzytkownikRepository.findByLogin(uzytkownik.get(0).getLogin());
+		if(!dane.get(0).getRola().getRola().equals("ROLE_KLIENT"))
+		{
+			return ResponseEntity.accepted().body(messageSource.getMessage("error.zlaRola", null, new Locale(jezyk)));
+		}
+		else
+		{
+			return ResponseEntity.ok(dane.get(0));
+		}
 	}
 	
 	@PostMapping(value = "/api/edytuj/{jezyk}")
 	public ResponseEntity edytuj(@PathVariable("jezyk") String jezyk, @RequestBody Uzytkownik uzytkownik, UriComponentsBuilder ucBuilder, BindingResult result)
 	{
-		List<Uzytkownik> uzytkownik12 = new ArrayList<Uzytkownik>();
-		uzytkownik12 = uzytkownikRepository.findAll();
+		//List<Uzytkownik> uzytkownik12 = new ArrayList<Uzytkownik>();
+		//uzytkownik12 = uzytkownikRepository.findAll();
 		
-		List<Uzytkownik> uzytk = uzytkownikRepository.findByLogin(uzytkownik12.get(0).getLogin());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		//List<Uzytkownik> uzytk = uzytkownikRepository.findByLogin(uzytkownik12.get(0).getLogin());
+		List<Uzytkownik> uzytk = uzytkownikRepository.findByLogin(authentication.getName());
 		boolean czyTelefonIstnieje = false;
 		if(uzytk.get(0).getTelefon().equals(uzytkownik.getTelefon()))
 		{
@@ -274,7 +301,9 @@ public class MobController
 	public ResponseEntity zamowieniaAktualne()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//uzytkownik = uzytkownikRepository.findAll();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneFalse(uzytkownik.get(0).getLogin());
@@ -285,7 +314,9 @@ public class MobController
 	public ResponseEntity zamowieniaZrealizowane()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//uzytkownik = uzytkownikRepository.findAll();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneTrue(uzytkownik.get(0).getLogin());
@@ -295,8 +326,9 @@ public class MobController
 	@RequestMapping(value = "/api/zamowienie/{id}", method = RequestMethod.GET)
 	public ResponseEntity zamowionePotrawy(@PathVariable("id") int id)
 	{
-		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//ponizsze nie jest uzywane, raczej do usuniecia
+		//List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
+		//uzytkownik = uzytkownikRepository.findAll();
 		
 		List<Potrawy_Zamowienia> potrawy = new ArrayList<Potrawy_Zamowienia>();
 		potrawy = potrawy_ZamowieniaRepository.findByZamowienieId(id);
@@ -307,11 +339,13 @@ public class MobController
 	public ResponseEntity zlozZamowienie(@PathVariable("jezyk") String jezyk, @RequestBody Zamowienie zamowienie, UriComponentsBuilder ucBuilder, BindingResult result) 
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//uzytkownik = uzytkownikRepository.findAll();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
 		boolean pusteZamowienie = false;
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		int ilosc = zamowienie.getIloscMiejsc();
+		//listaP lub param raczej do usuniecia, sprawdzic pozniej
 		List<Parametry> listaP = parametryRepository.findByIdParametru(1);
 		List<Parametry> param = parametryRepository.findAll();
 		int maxIlosc = ilosc + listaP.get(0).getSzukanieStolika();
@@ -406,7 +440,9 @@ public class MobController
 	public ResponseEntity koszykKlienta()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//uzytkownik = uzytkownikRepository.findAll();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
 		List<Koszyk> koszyk = new ArrayList<Koszyk>();
 		koszyk = koszykRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
@@ -432,7 +468,10 @@ public class MobController
 		{
 			Koszyk kosz;
 			List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-			uzytkownik = uzytkownikRepository.findAll();
+			//uzytkownik = uzytkownikRepository.findAll();
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
+			
 			List<Koszyk> czyJuzMaPotraweWkoszyku = new ArrayList<Koszyk>();
 			czyJuzMaPotraweWkoszyku = koszykRepository.findByPotrawaNazwaAndUzytkownikLogin(potrawa.get(0).getNazwa(), uzytkownik.get(0).getLogin());
 			if(czyJuzMaPotraweWkoszyku.size() > 0)
@@ -456,7 +495,9 @@ public class MobController
 	public ResponseEntity usunZKoszyka(@PathVariable("jezyk") String jezyk, @RequestBody Koszyk koszyk, UriComponentsBuilder ucBuilder, BindingResult result) 
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll(); //pierwszy jest uzytkownik o id = 1
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
+		//uzytkownik = uzytkownikRepository.findAll(); //pierwszy jest uzytkownik o id = 1
 		System.out.println(uzytkownik.get(0).getLogin());
 		List<Koszyk> koszyk2 = koszykRepository.findByUzytkownikLoginAndPotrawaId(uzytkownik.get(0).getLogin(), koszyk.getIdPotrawy());
 		koszykRepository.delete(koszyk2.get(0));
@@ -468,7 +509,9 @@ public class MobController
 	public ResponseEntity usunZKoszyka(@PathVariable("jezyk") String jezyk, UriComponentsBuilder ucBuilder) 
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		uzytkownik = uzytkownikRepository.findAll();
+		//uzytkownik = uzytkownikRepository.findAll();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		List<Koszyk> koszyk = koszykRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
 		koszykRepository.deleteAll(koszyk);
 		URI location = ucBuilder.path("/api/komentarz/{id}").buildAndExpand(1).toUri();
@@ -496,7 +539,9 @@ public class MobController
 		 else
 		 {
 			 List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-			 uzytkownik	= uzytkownikRepository.findById(komentarz.getIdUzytkownika());
+			 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			 uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
+			 //uzytkownik	= uzytkownikRepository.findById(komentarz.getIdUzytkownika());
 			 komentarz.setUzytkownik(uzytkownik.get(0));
 			 List<Potrawa> potrawa = new ArrayList<Potrawa>();
 			 potrawa = potrawaRepository.findById(komentarz.getIdPotrawy());
