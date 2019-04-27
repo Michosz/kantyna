@@ -95,8 +95,6 @@
 		    <artifactId>selenium-chrome-driver</artifactId>
 		</dependency>
 		    
-	
-		
 		<dependency>
 		    <groupId>org.springframework.security.oauth</groupId>
 		    <artifactId>spring-security-oauth2</artifactId>
@@ -108,12 +106,6 @@
 		    <artifactId>spring-security-jwt</artifactId>
 		    <version>1.0.10.RELEASE</version>
 		</dependency>
-		
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt</artifactId>
-		    <version>0.9.1</version>
-	</dependency>
 
 	</dependencies>
 
@@ -135,7 +127,5 @@
         	</plugin>
 		</plugins>
 	</build>
-
-
 
 </project>
