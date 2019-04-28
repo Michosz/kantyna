@@ -37,6 +37,11 @@ public class UserDetailsServiceImpl implements UserDetailsService
         {
             throw new UsernameNotFoundException(login);
         }
+    	System.out.println(uzytk.get(0).getRola().getRola());
+        if(!(uzytk.get(0).getRola().getRola().equals("ROLE_KLIENT")))
+        {
+            throw new UsernameNotFoundException(login);
+        }
         System.out.println(uzytk.get(0).getRola().getRola());
         List<SimpleGrantedAuthority> role = Arrays.asList(new SimpleGrantedAuthority(uzytk.get(0).getRola().getRola()));
         return new User(uzytk.get(0).getLogin(), uzytk.get(0).getHaslo(), role);
