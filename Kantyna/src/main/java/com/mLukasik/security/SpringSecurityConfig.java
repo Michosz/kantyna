@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -48,7 +49,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
 	{
 	     auth.jdbcAuthentication().usersByUsernameQuery(userQuery).authoritiesByUsernameQuery(rolesQuery)
 	     .dataSource(ds).passwordEncoder(bcp);
-	 }
+	}
+	
+	@Resource(name = "userService")
+    private UserDetailsService userDetailsService;
+	
+	@Autowired
+    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(bcp);
+    }
 	
 	@Override
 	protected void configure(HttpSecurity httpSec) throws Exception 
