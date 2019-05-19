@@ -75,11 +75,11 @@ pageEncoding="UTF-8"%>
 	</style>
 	
 	<script>
-		function zatwierdzanie(id)
+		function odbanowanie(id)
 		{
 			swal({ 
-		    title: '<s:message code="page.zamowienia.Zatwierdzanie"/>',   
-		    text: '<s:message code="page.zamowienia.PytanieZatwierdzanie"/>',   
+		    title: '<s:message code="page.main.Aktywacja"/>',   
+		    text: '<s:message code="page.main.Odbanuj"/>',   
 		    type: "question",   
 		    showCancelButton: true,   
 		    confirmButtonColor: "#DD6B55",   
@@ -89,7 +89,7 @@ pageEncoding="UTF-8"%>
 		    closeOnCancel: false }).then((result) => {
 			if(result.value)
 			{
-				document.getElementById("zatwierdz" + id).submit();
+				document.getElementById("odbanuj" + id).submit();
 			}
 			else
 			{
@@ -97,21 +97,33 @@ pageEncoding="UTF-8"%>
 				return false;
 			}})
 		}
+		
+		function pobierzIdUzytk(id) 
+		{
+			document.getElementById("numerUzytk").value = id;
+		}
+		
+		$(document).ready(function () 
+		{
+			if(${numerUzytk} != 0)
+			{
+				document.getElementById("zbanuj" + ${numerUzytk}).click();
+			}
+		});
 	</script>
 </head>
 
 <body style="background-color:#d1e1bf">
 	<%@include file="/WEB-INF/menu.incl" %>
 	
-	<!--<c:choose>
-		<c:when test="${param.zwolniony == '1'}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.stoliki.StolikZwolniony"/></b></div>
+	<c:choose>
+		<c:when test="${param.zbanowany == '1'}">
+			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.Zbanowany"/></b></div>
 		</c:when>
-	</c:choose>-->
-	
-	<!--<c:if test="${param.zamZatwierdzone == '1'}">
-		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
-	</c:if>-->
+		<c:when test="${param.odbanowany == '1'}">
+			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.main.Odbanowany"/></b></div>
+		</c:when>
+	</c:choose>
 	
 	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed; display: none">
 		<thead>
@@ -121,6 +133,8 @@ pageEncoding="UTF-8"%>
 				<th><s:message code="page.Uzytkownicy.Email"/></th>
 				<th><s:message code="page.Uzytkownicy.Telefon"/></th>
 				<th><s:message code="page.Uzytkownicy.Rola"/></th>
+				<th style="width: 140px"><s:message code="page.Uzytkownicy.CzyAktywny"/></th>
+				<th><s:message code="page.Uzytkownicy.Komentarz"/></th>
 			</tr>
 		</thead>
 		<c:forEach items="${uzytkownicy}" var="uzytk">
@@ -131,7 +145,7 @@ pageEncoding="UTF-8"%>
 			<td>
 				<c:out value="${uzytk.nazwisko}" />
 			</td>
-			<td>
+			<td style="word-break: break-all">
 				<c:out value="${uzytk.login}" />
 			</td>
 			<td>
@@ -139,6 +153,26 @@ pageEncoding="UTF-8"%>
 			</td>
 			<td>
 				<c:out value="${uzytk.rola.rola}" />
+			</td>
+			<td>
+				<c:if test="${not uzytk.czyAktywny}">
+					<form:form id="odbanuj${uzytk.id}" class="zmienStatus" action="odbanuj?par=${uzytk.id}" method="POST" onsubmit="return odbanowanie(${uzytk.id}) ? true : false;">	
+						<button class="btn btn-primary" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.main.Aktywacja"/></button>
+					</form:form>	
+				</c:if>
+				<c:if test="${uzytk.czyAktywny}">
+					<button id="zbanuj${uzytk.id}" type="button" class="btn btn-danger" data-toggle="modal" style="white-space: normal; min-width: 100%;" data-target="#deaktywacja" onclick="pobierzIdUzytk(${uzytk.id})">
+						<s:message code="page.main.Deaktywacja"/>
+					</button>
+				</c:if>
+			</td>
+			<td>
+				<c:if test="${fn:length(uzytk.komentarz) >= 3}">
+					<c:out value="${uzytk.komentarz}"/>
+				</c:if>
+				<c:if test="${fn:length(uzytk.komentarz) < 3}">
+					<c:out value="-"/>
+				</c:if>
 			</td>
 		</tr>
 		</c:forEach>
@@ -250,75 +284,36 @@ pageEncoding="UTF-8"%>
 				table.style.display = "";
 			});
 		
-				function wyswietlPotrawy(id) 
-				{
-				  var table, tr, td, i, txtValue;
-				  table = document.getElementById("dania");
-				  tr = table.getElementsByTagName("tr");
-				  // Loop through all table rows, and hide those who don't match the search query
-				  for (i = 0; i < tr.length; i++) 
-				  {
-				    td = tr[i].getElementsByTagName("td")[0];
-				    if (td)
-				    {
-				      txtValue = td.textContent || td.innerText;
-				      if (txtValue.includes(id)) 
-				      {
-				        tr[i].style.display = "";
-				      } 
-				      else 
-				      {
-				        tr[i].style.display = "none";
-				      }
-				    }
-				  }
-				}
 		</script>
 		
-		<div class="modal fade" id="potrawy" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-			  <div class="modal-dialog modal-lg" role="document">
+		<div class="modal fade" id="deaktywacja" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
 			    <div class="modal-content">
 			      <div class="modal-header">
-			        <h5 class="modal-title" id="exampleModalLabel"><s:message code="page.zamowienia.ZamowionePotrawy"/></h5>
+			        <h5 class="modal-title" id="exampleModalLabel2"><s:message code="page.main.Deaktywacja"/></h5>
 			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			          <span aria-hidden="true">&times;</span>
 			        </button>
 			      </div>
 			      <div class="modal-body">
-			      	<table class="table table-bordered table-striped table-dark" id="dania">
-			        	<thead>
-						<tr>
-							<th><s:message code="page.main.Obrazek"/></th>
-							<th><s:message code="page.main.Nazwa"/></th>
-							<th><s:message code="page.zamowienie.Ilosc"/></th>
-							<th><s:message code="page.main.Rodzaj"/></th>
-						</tr>
-						</thead>
-						<c:forEach items="${listaZamowien}" var="zamowienie">
-				        	<c:forEach items="${zamowienie.potrawy_Zamowienia}" var="potrawa_Zamowienie">
-								<tr>
-									<td hidden>
-										<c:out value="${zamowienie.id}"/>
-									</td>
-									<td>
-										<img  src="data:potrawa/jpeg;base64,${potrawa_Zamowienie.potrawa.base64}" width="200" height="200" />
-									</td>
-									<td>
-										<c:out value="${potrawa_Zamowienie.potrawa.nazwa}"/>
-									</td>
-									<td>
-										<c:out value="${potrawa_Zamowienie.ilosc}" />
-									</td>
-									<td>
-										<c:out value="${potrawa_Zamowienie.potrawa.rodzajPotrawy.rodzaj}" />
-									</td>
-								</tr>
-							</c:forEach>
-						</c:forEach>
-					</table>
-			     </div>
-			 	</div>
+					<form:form action="zbanuj" method="POST" modelAttribute="Uzytkownik">
+						<div class="form-group row">
+							<label for="Kom" class="col-3 col-form-label"><strong><s:message code="page.komentarz.Tresc"/>:</strong></label>
+					   		<div class="col-9">
+					       		<form:textarea path="komentarz" rows="6" cols="40" class="form-control" />
+					       		<sf:errors path="Komentarz" class="text-danger" />
+							</div>
+						</div>
+						<div>
+							<form:input id="numerUzytk" type="number" path="id" style="display: none"/>
+						</div>
+						<div align="center">
+							<button type="submit" class="btn btn-primary" name=dodajK value="Kom"><s:message code="page.main.Deaktywacja"/></button>
+						</div>
+					</form:form>
 				</div>
-			</div>	
+			</div>
+			</div>
+		</div>
 </body>
 </html>

@@ -18,8 +18,7 @@ pageEncoding="UTF-8"%>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-		
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 		
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
   	<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css'>
@@ -115,6 +114,7 @@ pageEncoding="UTF-8"%>
 	    left: 0;
 	    color: #FFD700;
 	}
+
 	</style>
 	
 	<script>
@@ -126,11 +126,6 @@ pageEncoding="UTF-8"%>
 		function stronicowanie(selected)
 		{
 		 	var table = document.getElementById("potrawy");
-		 	/*var tr = table.getElementsByTagName("tr");
-			for (i = 0; i < tr.length; i++) 
-	  		{
-				tr[i].style.display = "none";
-	  		}*/
 		 	
 			var td, txtValue;
 			var przyc = document.getElementById("przyciski");
@@ -420,19 +415,19 @@ pageEncoding="UTF-8"%>
 		<table class="table table-bordered table-striped table-dark" id="potrawy" style="table-layout: fixed; display: none">
 			<thead>
 				<tr>
-					<th style="width: 220px"><s:message code="page.main.Obrazek"/></th>
+					<th style="width: 210px"><s:message code="page.main.Obrazek"/></th>
 					<th><s:message code="page.main.Nazwa"/></th>
 					<th><s:message code="page.main.CzyDostepna"/></th>
 					<th><s:message code="page.main.Cena"/></th>
 					<th><s:message code="page.main.CzyPromocja"/></th>
 					<th><s:message code="page.main.Rodzaj"/></th>
-					<th></th>
+					<th style="width: 140px"></th>
 				</tr>
 			</thead>
 			<c:forEach items="${potrawy}" var="potrawa">
 			<tr>
 				<td>
-					<img src="data:potrawa/jpeg;base64,${potrawa.base64}" width="200" height="200" title="<s:message code="page.main.ByPowiekszyc"/>" style="cursor: pointer" onclick="onClick('data:potrawa/jpeg;base64,${potrawa.base64}')" data-toggle="modal" data-target="#obrazek"/>
+					<img src="data:potrawa/jpeg;base64,${potrawa.base64}" width="190" height="190" title="<s:message code="page.main.ByPowiekszyc"/>" style="cursor: pointer" onclick="onClick('data:potrawa/jpeg;base64,${potrawa.base64}')" data-toggle="modal" data-target="#obrazek"/>
 				</td>
 				<td>
 					<c:out value="${potrawa.nazwa}" />
@@ -468,9 +463,9 @@ pageEncoding="UTF-8"%>
 					<sec:authorize access="hasRole('MANAGER')">
 						<c:if test="${potrawa.czyJestDostepna}">
 							<form:form id="usun${potrawa.id}" class="zmienStatus" action="usunZmenu?par=${potrawa.id}" method="POST" onsubmit="return usuwanie(${potrawa.id}) ? true : false;">	
-								<button class="btn btn-danger" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.main.UsunZmenu"/></button>
+								<button class="btn btn-danger" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.main.UsunZmenu"/></button>
 							</form:form>	
-							<button id="formularzPromocja${potrawa.id}" type="button" class="btn btn-primary" style="width: 100%" data-toggle="modal" data-target="#promocja" onclick="pobierzIdPotrawyPromocja(${potrawa.id})">
+							<button id="formularzPromocja${potrawa.id}" type="button" class="btn btn-primary" style="white-space: normal; min-width: 100%;" data-toggle="modal" data-target="#promocja" onclick="pobierzIdPotrawyPromocja(${potrawa.id})">
 								<s:message code="page.main.PrzeniesNaPromocje"/>
 							</button>			
 						</c:if>
@@ -478,33 +473,33 @@ pageEncoding="UTF-8"%>
 					<sec:authorize access="hasRole('MANAGER')">
 						<c:if test="${not potrawa.czyJestDostepna}">	
 							<form:form id="przywroc${potrawa.id}" class="zmienStatus" action="usunZmenu?par=${potrawa.id}" method="POST" onsubmit="return przywracanie(${potrawa.id}) ? true : false;">	
-								<button type="submit" class="btn btn-success" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.main.PrzywrocDoMenu"/></button>
+								<button type="submit" class="btn btn-success" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.main.PrzywrocDoMenu"/></button>
 							</form:form>
 						</c:if>
 					</sec:authorize>
 					<sec:authorize access="hasRole('KLIENT')">
-						<button id="formularz${potrawa.id}" type="button" class="btn btn-primary" data-toggle="modal" style="width: 100%" data-target="#komentarz1" onclick="pobierzIdPotrawy(${potrawa.id})">
+						<button id="formularz${potrawa.id}" type="button" class="btn btn-primary" data-toggle="modal" style="white-space: normal; min-width: 100%;" data-target="#komentarz1" onclick="pobierzIdPotrawy(${potrawa.id})">
 							<i class="far fa-comment-dots" style="font-size:22px"></i>  <s:message code="page.main.Skomentuj"/>
 						</button>
 						<c:if test="${potrawa.czyJestDostepna}">
-							<button id="formularzKoszyk${potrawa.id}" type="button" class="btn btn-primary" data-toggle="modal" style="width: 100%" data-target="#koszyk1" onclick="pobierzIdPotrawyKoszyk(${potrawa.id})">
-								<i class="fa fa-shopping-basket" style="font-size:22px"></i>  <s:message code="page.main.DodajDoKoszyka"/>
+							<button id="formularzKoszyk${potrawa.id}" type="button" class="btn btn-primary" data-toggle="modal" style="white-space: normal; min-width: 100%;" data-target="#koszyk1" onclick="pobierzIdPotrawyKoszyk(${potrawa.id})">
+								<i class="fa fa-shopping-basket" style="font-size:22px"></i> <s:message code="page.main.DodajDoKoszyka"/>
 							</button>
 						</c:if>
 						<c:if test="${not potrawa.czyJestDostepna}">
-							<button id="formularzKoszyk${potrawa.id}" disabled type="button" class="btn btn-primary" data-toggle="modal" style="width: 100%" data-target="#koszyk1" onclick="pobierzIdPotrawyKoszyk(${potrawa.id})">
+							<button id="formularzKoszyk${potrawa.id}" disabled type="button" class="btn btn-primary" data-toggle="modal" style="white-space: normal; min-width: 100%;" data-target="#koszyk1" onclick="pobierzIdPotrawyKoszyk(${potrawa.id})">
 								<i class="fa fa-shopping-basket" style="font-size:22px"></i>  <s:message code="page.main.DodajDoKoszyka"/>
 							</button>
 						</c:if>
 					</sec:authorize>
 					<c:choose>
 						<c:when test="${empty potrawa.listaKomentarzy}">
-							<button id="koment" type="button" class="btn btn-primary" style="width: 100%" disabled title="<s:message code="page.main.BrakKomentarzy"/>" data-toggle="modal" data-target="#komentarze" onclick="wyswietlKomentarze(${potrawa.id})">
+							<button id="koment" type="button" class="btn btn-primary" style="white-space: normal; min-width: 100%;" disabled title="<s:message code="page.main.BrakKomentarzy"/>" data-toggle="modal" data-target="#komentarze" onclick="wyswietlKomentarze(${potrawa.id})">
 								<s:message code="page.main.Komentarze2"/>
 							</button>
 						</c:when>
 						<c:otherwise>
-							<button id="koment" type="button" class="btn btn-primary" style="width: 100%" data-toggle="modal" data-target="#komentarze" onclick="wyswietlKomentarze(${potrawa.id})">
+							<button id="koment" type="button" class="btn btn-primary" style="white-space: normal; min-width: 100%;" data-toggle="modal" data-target="#komentarze" onclick="wyswietlKomentarze(${potrawa.id})">
 								<s:message code="page.main.Komentarze2"/>
 							</button>
 						</c:otherwise>
@@ -516,7 +511,7 @@ pageEncoding="UTF-8"%>
 		</table>
 		
 		<div class="modal fade" id="obrazek" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-			  <div class="modal-dialog modal-lg" role="document">
+			<div class="modal-dialog modal-lg" role="document">
 			    <div class="modal-content">
 			      <div class="modal-header">
 			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -527,13 +522,12 @@ pageEncoding="UTF-8"%>
 			      	<img class="w3-modal-content" id="wiekszyObrazek" style="width:100%">
 			     </div>
 			 	</div>
-				</div>
+			</div>
 		</div>	
 
 	<div id="przyciski" style="align: center">
 		
 		</div>
-
 	
 			<div class="modal fade" id="komentarze" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			  <div class="modal-dialog" role="document">

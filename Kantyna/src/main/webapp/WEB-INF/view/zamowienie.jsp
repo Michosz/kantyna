@@ -105,7 +105,44 @@ pageEncoding="UTF-8"%>
 				</div>
 			</div>
 			
+			<div class="form-group row" style="width: 100%;">
+				<label for="Login" class="col-md-2 offset-md-3 col-form-label" style="text-align: right"><strong><s:message code="page.zamowienie.CzyPlaciOdRazu"/>:</strong></label>
+				<div class="col-3">
+					<span class="btn btn-success active" onclick="zaznacz('czyPlaciOdRazu', 'checkbox1')" style="height: 40px; width: 40px">
+						<i id="czyPlaciOdRazu" class=""></i>
+					</span>
+					<c:if test="${Zamowienie.czyPlaciOdRazu}">
+		 				<form:checkbox id="checkbox1" path="czyPlaciOdRazu" style="display: none" checked="${Zamowienie.czyPlaciOdRazu}"/>
+		 			</c:if>
+		 			<c:if test="${not Zamowienie.czyPlaciOdRazu}">
+		 				<form:checkbox id="checkbox1" path="czyPlaciOdRazu" style="display: none"/>
+		 			</c:if>
+		 		</div>
+			</div>
+			
 			<script>
+				$(document).ready(function() 
+				{
+					if( ${Zamowienie.czyPlaciOdRazu} == true)
+					{
+						document.getElementById("czyPlaciOdRazu").className = "fas fa-check";
+					}
+				});
+			
+				function zaznacz(idIkony, idCheckboxa) 
+				{
+					if(document.getElementById(idIkony).className  == "fas fa-check")
+					{
+						document.getElementById(idIkony).className  = "";
+						document.getElementById(idCheckboxa).checked = false;
+					}
+					else if(document.getElementById(idIkony).className  == "")
+					{
+						document.getElementById(idIkony).className  = "fas fa-check";
+						document.getElementById(idCheckboxa).checked = true;
+					}
+				}
+			
 				$(function () 
 				{
 			       	$('#timePicker').datetimepicker(

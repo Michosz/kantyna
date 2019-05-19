@@ -63,14 +63,23 @@ public class Zamowienie
 	private List<Potrawy_Zamowienia> potrawy_Zamowienia = new ArrayList<Potrawy_Zamowienia>();
 	
 	@Transient
-	int koszyk;
+	private int koszyk;
 	
 	@Transient
-	int iloscMiejsc;
+	private int iloscMiejsc;
 	
 	@Transient
-	String czasReal;
-
+	private String czasReal;
+	
+	@Transient
+	private int cenaCalkowita;
+	
+	@Transient
+	private boolean czyPlaciOdRazu = false;
+	
+	@Column(name = "czy_zaplacone")
+	private boolean czyZaplacone = false;
+	
 	public LocalTime getCzasRealizacji() 
 	{
 		return czasRealizacji;
@@ -178,5 +187,35 @@ public class Zamowienie
 	public void setUzytkownik(Uzytkownik uzytkownik) 
 	{
 		this.uzytkownik = uzytkownik;
+	}
+	
+	public int getCenaCalkowita()
+	{
+		return cenaCalkowita;
+	}
+	
+	public void setCenaCalkowita(int cenaCalkowita)
+	{
+		this.cenaCalkowita = cenaCalkowita;
+	}
+	
+	public boolean getCzyZaplacone()
+	{
+		return czyZaplacone;
+	}
+	
+	public void setCzyZaplacone(boolean czyZaplacone)
+	{
+		this.czyZaplacone = czyZaplacone;
+	}
+	
+	public boolean getCzyPlaciOdRazu()
+	{
+		return czyPlaciOdRazu;
+	}
+	
+	public void setCzyPlaciOdRazu(boolean czyPlaciOdRazu)
+	{
+		this.czyPlaciOdRazu = czyPlaciOdRazu;
 	}
 }

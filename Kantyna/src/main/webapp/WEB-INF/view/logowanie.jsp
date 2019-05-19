@@ -46,17 +46,16 @@
 	
 	<div id="sixth">
 		<c:if test="${param.error == '1'}">
-			<c:if test="${SPRING_SECURITY_LAST_EXCEPTION.message == 'User is disabled'}">
-      			<div class="container alert alert-danger mt-2 text-center" role="alert" style="width: 70%;">
-      		 		<b> <s:message code="page.logowanie.Ban"/> </b>
-      			</div>
-			</c:if>
+   			<div class="container alert alert-danger mt-2 text-center" role="alert" style="width: 70%;">
+   		 		<b> <s:message code="page.logowanie.Ban"/> </b>
+   		 		<s:message code="page.Uzytkownicy.Komentarz"/>: <c:out value="${sessionScope.komentarz}" />
+   			</div>
+		</c:if>
 		
-			<c:if test="${SPRING_SECURITY_LAST_EXCEPTION.message == 'Bad credentials'}">
-      			<div class="container alert alert-danger mt-2 text-center" role="alert" style="width: 70%;">
-      		 		<b> <s:message code="page.logowanie.ZleDane"/> </b>
-      			</div>
-			</c:if>
+		<c:if test="${param.error == '2'}">
+			<div class="container alert alert-danger mt-2 text-center" role="alert" style="width: 70%;">
+		 		<b> <s:message code="page.logowanie.ZleDane"/> </b>
+			</div>
 		</c:if>
 	</div>
 	

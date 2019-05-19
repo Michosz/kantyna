@@ -129,7 +129,7 @@ pageEncoding="UTF-8"%>
 	
 	<c:choose>
 		<c:when test="${param.potUsunieta == '1'}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.koszyk.UsunWszystko"/></b></div>
+			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.koszyk.PotUsunieta"/></b></div>
 		</c:when>
 		<c:when test="${param.koszykPusty == '1'}">
 			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.koszyk.KoszykPusty"/></b></div>
@@ -149,7 +149,7 @@ pageEncoding="UTF-8"%>
 				<th><s:message code="page.main.CzyPromocja"/></th>
 				<th><s:message code="page.main.Rodzaj"/></th>
 				<th><s:message code="page.koszyk.Ilosc"/></th>
-				<th></th>
+				<th style="width: 140px"></th>
 			</tr>
 		</thead>
 		<c:forEach items="${koszyk}" var="koszyk">
@@ -192,7 +192,7 @@ pageEncoding="UTF-8"%>
 			</td>
 			<td>
 				<form:form id="usun${koszyk.potrawa.id}" class="zmienStatus" action="usunZkoszyka?par=${koszyk.potrawa.id}" method="POST" onsubmit="return usuwanie(${koszyk.potrawa.id}) ? true : false;">	
-					<button type="submit" class="btn btn-danger" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.koszyk.Usun"/></button>
+					<button type="submit" class="btn btn-danger" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.koszyk.Usun"/></button>
 				</form:form>
 			</td>
 		</tr>

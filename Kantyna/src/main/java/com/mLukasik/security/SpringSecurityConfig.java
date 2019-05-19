@@ -29,12 +29,10 @@ import org.springframework.web.filter.CorsFilter;
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
 {
 	private BCryptPasswordEncoder bcp = new BCryptPasswordEncoder();
-	
 	@Autowired
 	private DataSource ds;
 	
 	private String userQuery = "select Login, Haslo, czy_aktywny from uzytkownicy where Login=?";
-	
 	private String rolesQuery = "select u.Login, r.Rola from uzytkownicy u inner join role r on (u.id_roli = r.id_roli) where u.Login=?";
     	
 	@Override
@@ -45,7 +43,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
     }
 	
 	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception //prawdopodobnie wypadlaoby to usunac, zeby tylko 
+	//userdetailservice dzialal, ale nie wiem czy wtedy komuniakty o bledach logowania na webowce tez sie jakos nie spierdola
 	{
 	     auth.jdbcAuthentication().usersByUsernameQuery(userQuery).authoritiesByUsernameQuery(rolesQuery)
 	     .dataSource(ds).passwordEncoder(bcp);
@@ -88,19 +87,22 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
 		.antMatchers("/info").hasRole("KLIENT")
 		.antMatchers("/konto").hasAnyRole("MANAGER", "KLIENT")
 		.antMatchers("/listaUzytk").hasRole("MANAGER")
+		.antMatchers("/odbanuj").hasRole("MANAGER")
+		.antMatchers("/zbanuj").hasRole("MANAGER")
 		.anyRequest().authenticated()
 		.and().httpBasic()
 		.and().csrf().disable()
 		.formLogin()
+		.failureHandler(new CustomAuthenticationFailureHandler())
 		.loginPage("/logowanie").permitAll()
-		.failureUrl("/logowanie?error=1")
+		//.failureUrl("/logowanie?error=1")
 		.defaultSuccessUrl("/", true).usernameParameter("login")
 		.passwordParameter("haslo")
 		.and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 		.logoutSuccessUrl("/logowanie")
 		//.deleteCookies("JSESSIONID")
-		.invalidateHttpSession(true) 
-		.and().exceptionHandling().accessDeniedPage("/");
+		.invalidateHttpSession(true)
+		.and().exceptionHandling().accessDeniedPage("/");	
 	}
 	
 	@Override

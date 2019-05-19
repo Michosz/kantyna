@@ -8,10 +8,10 @@ import javax.transaction.Transactional;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import com.mLukasik.model.Koszyk;
 import com.mLukasik.model.Potrawa;
@@ -25,7 +25,6 @@ import com.mLukasik.repository.RodzajPotrawyRepository;
 import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
-
 import javax.servlet.http.HttpServletRequest;
 
 @Service
@@ -75,9 +74,6 @@ public class ZbiorczyService
 			String base64Encoded;
 			try
 			{
-				//imageBlob is storing the base64 representation of your image data. For storing that onto your disk you need to
-				//decode that base64 representation into the original binary format representation.
-				//https://stackoverflow.com/questions/50427495/java-blob-to-image-file
 				base64Encoded = new String(encodeBase64, "UTF-8");
 				pot.setBase64(base64Encoded);
 			} 
@@ -213,15 +209,81 @@ public class ZbiorczyService
 		}
 	}
 	
-	//chyba zbedne
-	/*public LocalTime coIleMilisekundZwalniac()
+	public List<Zamowienie> generujListeZamowien(Authentication auth, List<Zamowienie> listaZamowien)
 	{
-		List<Parametry> parametry = new ArrayList<Parametry>();
-		parametry = parametryRepository.findByIdParametru(1);
-		LocalTime czas = parametry.get(0).getCoIleZwalniac();
-		int cal = czas.toSecondOfDay(); 
-		cal = cal * 1000;
-		return czas;
-		//return cal;
-	}*/
+		List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
+		if(authorities.get(0).getAuthority().contains("ROLE_KLIENT"))
+		{
+			listaZamowien = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneFalse(auth.getName());
+		}
+		if(authorities.get(0).getAuthority().contains("ROLE_MANAGER"))
+		{
+			listaZamowien = zamowienieRepository.findByCzyZrealizowaneFalse();
+			List<Zamowienie> listaZamowienNowych = zamowienieRepository.findByCzyManagerJeWidzialFalse();
+			for(Zamowienie z: listaZamowienNowych)
+			{
+				z.setCzyManagerJeWidzial(true);
+				zamowienieRepository.save(z);
+			}
+		}
+		return listaZamowien;
+	}
+	
+	public List<Zamowienie> policzCeneZamowien(List<Zamowienie> listaZamowien, Authentication auth)
+	{
+		double cena = 0;
+		int centy = 0;
+		List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
+		if(authorities.get(0).getAuthority().contains("ROLE_KLIENT"))
+		{
+			for(int j = 0; j < listaZamowien.size(); j++)
+			{
+				cena = 0;
+				centy = 0;
+				for(int i = 0; i < listaZamowien.get(j).getPotrawy_Zamowienia().size(); i++)
+				{
+					if(listaZamowien.get(j).getPotrawy_Zamowienia().get(i).getPotrawa().getCzyPromocja())
+					{
+						cena = cena + (listaZamowien.get(j).getPotrawy_Zamowienia().get(i).getPotrawa().getCenaPromocyjna() * listaZamowien.get(j).getPotrawy_Zamowienia().get(i).getIlosc());
+					}
+					else
+					{
+						cena = cena + (listaZamowien.get(j).getPotrawy_Zamowienia().get(i).getPotrawa().getCena() * listaZamowien.get(j).getPotrawy_Zamowienia().get(i).getIlosc());
+					}
+				}
+				centy = (int) (cena * 100);
+				listaZamowien.get(j).setCenaCalkowita(centy); //w centach trzeba wyslac
+			}
+		}
+		return listaZamowien;
+	}
+	
+	public int zwrocId(HttpServletRequest request) 
+	{
+		int id = 0;
+		try
+	    {
+			id = Integer.parseInt(request.getParameter("par"));
+	    }
+		catch(Exception e)
+		{
+
+		}
+		return id;
+	}
+	
+	public Model generujModelAttributeDlaZamowienAktualnych(Model model, String publicKey, Authentication auth)
+	{
+		model.addAttribute("blad", 1);
+		List<Zamowienie> listaZamowien = new ArrayList<Zamowienie>();
+		model.addAttribute("uzytkownik", auth.getName());
+		listaZamowien =  generujListeZamowien(auth, listaZamowien);
+		listaZamowien = zmianaFormatu3(listaZamowien);
+		listaZamowien = policzCeneZamowien(listaZamowien, auth);
+	    model.addAttribute("stripePublicKey", publicKey);
+	    model.addAttribute("currency", "PLN");
+		model.addAttribute("iloscRekordow", listaZamowien.size());
+		model.addAttribute("listaZamowien", listaZamowien);
+		return model;
+	}
 }

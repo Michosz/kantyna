@@ -114,4 +114,13 @@ public class UzytkownikValidator implements Validator
         	err.rejectValue("Haslo", "error.musiBycInneHaslo");
         }
 	}
+	
+	public void walidacjaKomentarza(Object obj, Errors err)
+	{
+		Uzytkownik uzytkownik = (Uzytkownik)obj;
+		if(uzytkownik.getKomentarz().length() < 3)
+		{
+			err.rejectValue("Komentarz", "error.ZaKrotkiKomentarz");
+		}
+	}
 }

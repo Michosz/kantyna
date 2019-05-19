@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -41,8 +43,11 @@ public class Uzytkownik
 	private String telefon;
 	
 	@Column(name = "czy_aktywny")
-	private boolean czy_aktywny;
+	private boolean czyAktywny;
 	
+	@Column(name = "komentarz" )
+	private String komentarz;
+    
 	@JsonIgnore
 	@Transient
 	private String rolaa;
@@ -127,13 +132,23 @@ public class Uzytkownik
 		this.telefon = telefon;
 	}
 
-	public boolean isCzy_aktywny()
+	public boolean getCzyAktywny()
 	{
-		return czy_aktywny;
+		return czyAktywny;
 	}
 
-	public void setCzy_aktywny(boolean czy_aktywny) 
+	public void setCzyAktywny(boolean czyAktywny) 
 	{
-		this.czy_aktywny = czy_aktywny;
+		this.czyAktywny = czyAktywny;
+	}
+	
+	public String getKomentarz() 
+	{
+		return komentarz;
+	}
+
+	public void setKomentarz(String komentarz) 
+	{
+		this.komentarz = komentarz;
 	}
 }

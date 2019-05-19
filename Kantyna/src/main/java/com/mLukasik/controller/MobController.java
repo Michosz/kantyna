@@ -1,31 +1,20 @@
 package com.mLukasik.controller;
 
 import java.net.URI;
-import java.security.Principal;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.mLukasik.model.ChargeRequest;
 import com.mLukasik.model.Komentarz;
 import com.mLukasik.model.Koszyk;
 import com.mLukasik.model.Parametry;
@@ -54,11 +44,14 @@ import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.StolikRepository;
 import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
+import com.mLukasik.service.StripeService;
 import com.mLukasik.service.ZbiorczyService;
 import com.mLukasik.validator.KomentarzValidator;
 import com.mLukasik.validator.KoszykValidator;
 import com.mLukasik.validator.UzytkownikValidator;
 import com.mLukasik.validator.ZamowienieValidator;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
 
 @RestController
 public class MobController
@@ -86,21 +79,14 @@ public class MobController
 	Potrawy_ZamowieniaRepository potrawy_ZamowieniaRepository;
 	@Autowired
 	private MessageSource messageSource;
-	
 	@Autowired
 	ZbiorczyService zbiorczyService;
+	@Autowired
+	private StripeService paymentsService;
 	
-	//pobieranie parametrow i stolikow - wstepnie zrobione,
-	//trzeba dopisac metody typu get: pobieranie zamowien, koszyka - wstepnie zrobione
-	//pobieranie informacji o koncie typu get do zrobienia
-	
-	//wstepnie zrobione metody post: dodawanie do koszyka, usuwanie z koszyka wszystkiego i jednej pozycji
-	//trzeba dopisac metody typu post: tworzenie zamowienia, modyfikowanie telefonu i hasla
-	
-	/*@RequestMapping(value = "/token", method = RequestMethod.GET)
-    public String getToken(@AuthenticationPrincipal TokenUserDetails principal) {
-        return principal.getToken();
-    }*/
+	@Value("${stripe.public.key}")
+	String publicKey;// = "pk_test_RTG24gh5fgeZVWrfZJWBsFnh0041YARzOA";
+	//dopisac metode, ktora sprawdza czy w ciagu pol godziny bedzie czas realziacji naszego zamowienia
 	
 	@RequestMapping(value = "/api/menu", method = RequestMethod.GET)
 	public ResponseEntity menu()
@@ -158,13 +144,12 @@ public class MobController
 				potrawy.get(i).setCzySaKomentarze(false);
 			}
 		}
-		return ResponseEntity.ok(potrawy2); //mozna zwrocic tylko jedna liste obiektow
+		return ResponseEntity.ok(potrawy2);
 	}
 	
 	@RequestMapping(value = "/api/filtrowanieMenu/{nazwa}/{rodzaj}", method = RequestMethod.GET)
 	public ResponseEntity filtrowanieMenu(@PathVariable("nazwa") String nazwa, @PathVariable("rodzaj") String rodzaj)
 	{
-		//przetestowac
 		List<Potrawa> potrawy = new ArrayList<Potrawa>();
 		if(rodzaj != null)
 		{
@@ -211,7 +196,6 @@ public class MobController
 		return ResponseEntity.ok(potrawy2);
 	}
 
-	//@PreAuthorize("hasRole('KLIENT')")
 	@RequestMapping(value = "/api/parametry", method = RequestMethod.GET)
 	public ResponseEntity parametry(HttpServletRequest request)
 	{
@@ -219,27 +203,23 @@ public class MobController
 		parametry = parametryRepository.findByIdParametru(1);
 		return ResponseEntity.ok(parametry.get(0));
 	}
+	
 	//dodac w mobilce po odbierze tokena wywolanie tej metody, zeby sprawdzic czy uzytkownik to klient
 	@RequestMapping(value = "/api/konto/{jezyk}", method = RequestMethod.GET)
 	public ResponseEntity konto(@PathVariable("jezyk") String jezyk)
 	{
-		//to
-		/*Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String username = principal.toString();
-		System.out.println("dupa " + username);*/
-		//lub to by odczytac login
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    //System.out.println("logged in user name: " + authentication.getName());
-		//zmnienic w ponizszm kodzie findall na findbylogin i jako parametr authentication.getname
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
 		List<Uzytkownik> dane = new ArrayList<Uzytkownik>();
 		dane = uzytkownik;//uzytkownikRepository.findByLogin(uzytkownik.get(0).getLogin());
 		if(!dane.get(0).getRola().getRola().equals("ROLE_KLIENT"))
 		{
-			return ResponseEntity.accepted().body(messageSource.getMessage("error.zlaRola", null, new Locale(jezyk)));
+			List<String> blad = new ArrayList<String>();
+			blad.add((messageSource.getMessage("error.zlaRola", null, new Locale(jezyk))));
+			return ResponseEntity.accepted().body(blad);
+			//return ResponseEntity.accepted().body(messageSource.getMessage("error.zlaRola", null, new Locale(jezyk)));
 		}
 		else
 		{
@@ -250,11 +230,7 @@ public class MobController
 	@PostMapping(value = "/api/edytuj/{jezyk}")
 	public ResponseEntity edytuj(@PathVariable("jezyk") String jezyk, @RequestBody Uzytkownik uzytkownik, UriComponentsBuilder ucBuilder, BindingResult result)
 	{
-		//List<Uzytkownik> uzytkownik12 = new ArrayList<Uzytkownik>();
-		//uzytkownik12 = uzytkownikRepository.findAll();
-		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		//List<Uzytkownik> uzytk = uzytkownikRepository.findByLogin(uzytkownik12.get(0).getLogin());
 		List<Uzytkownik> uzytk = uzytkownikRepository.findByLogin(authentication.getName());
 		boolean czyTelefonIstnieje = false;
 		if(uzytk.get(0).getTelefon().equals(uzytkownik.getTelefon()))
@@ -314,10 +290,8 @@ public class MobController
 	public ResponseEntity zamowieniaZrealizowane()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
-		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneTrue(uzytkownik.get(0).getLogin());
 		return ResponseEntity.ok(zamowienia);
@@ -326,10 +300,6 @@ public class MobController
 	@RequestMapping(value = "/api/zamowienie/{id}", method = RequestMethod.GET)
 	public ResponseEntity zamowionePotrawy(@PathVariable("id") int id)
 	{
-		//ponizsze nie jest uzywane, raczej do usuniecia
-		//List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
-		
 		List<Potrawy_Zamowienia> potrawy = new ArrayList<Potrawy_Zamowienia>();
 		potrawy = potrawy_ZamowieniaRepository.findByZamowienieId(id);
 		return ResponseEntity.ok(potrawy);
@@ -339,7 +309,6 @@ public class MobController
 	public ResponseEntity zlozZamowienie(@PathVariable("jezyk") String jezyk, @RequestBody Zamowienie zamowienie, UriComponentsBuilder ucBuilder, BindingResult result) 
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		
@@ -430,9 +399,13 @@ public class MobController
 			zamowienie.setCzyManagerJeWidzial(false);
 			zamowienie.setDataZam(date);
 			zamowienie.setPotrawy_Zamowienia(lista);
-			zamowienieRepository.save(zamowienie);
-			URI location = ucBuilder.path("/api/komentarz/{id}").buildAndExpand(zamowienie.getIloscMiejsc()).toUri();
-			return ResponseEntity.created(location).header("MyResponseHeader", "MyValue").body(messageSource.getMessage("api.ZamowienieZlozone", null, new Locale(jezyk)));
+			
+			List<Zamowienie> zamowien = new ArrayList<Zamowienie>();
+			zamowien.add(zamowienie);
+			zamowien = zbiorczyService.policzCeneZamowien(zamowien, authentication);
+			Zamowienie zamowienieId = zamowienieRepository.save(zamowienie);
+			URI location = ucBuilder.path("{id}").buildAndExpand(zamowienieId.getId()).toUri();
+			return ResponseEntity.created(location).header("id", "" + zamowienieId.getId(), "cenaCalkowita", "" + zamowien.get(0).getCenaCalkowita()).body(messageSource.getMessage("api.ZamowienieZlozone", null, new Locale(jezyk)));
 		}
 	}
 	
@@ -440,10 +413,8 @@ public class MobController
 	public ResponseEntity koszykKlienta()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
-		
 		List<Koszyk> koszyk = new ArrayList<Koszyk>();
 		koszyk = koszykRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
 		return ResponseEntity.ok(koszyk);
@@ -468,10 +439,8 @@ public class MobController
 		{
 			Koszyk kosz;
 			List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-			//uzytkownik = uzytkownikRepository.findAll();
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
-			
 			List<Koszyk> czyJuzMaPotraweWkoszyku = new ArrayList<Koszyk>();
 			czyJuzMaPotraweWkoszyku = koszykRepository.findByPotrawaNazwaAndUzytkownikLogin(potrawa.get(0).getNazwa(), uzytkownik.get(0).getLogin());
 			if(czyJuzMaPotraweWkoszyku.size() > 0)
@@ -497,8 +466,6 @@ public class MobController
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
-		//uzytkownik = uzytkownikRepository.findAll(); //pierwszy jest uzytkownik o id = 1
-		System.out.println(uzytkownik.get(0).getLogin());
 		List<Koszyk> koszyk2 = koszykRepository.findByUzytkownikLoginAndPotrawaId(uzytkownik.get(0).getLogin(), koszyk.getIdPotrawy());
 		koszykRepository.delete(koszyk2.get(0));
 		URI location = ucBuilder.path("/api/komentarz/{id}").buildAndExpand(koszyk.getIdPotrawy()).toUri();
@@ -509,7 +476,6 @@ public class MobController
 	public ResponseEntity usunZKoszyka(@PathVariable("jezyk") String jezyk, UriComponentsBuilder ucBuilder) 
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		List<Koszyk> koszyk = koszykRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
@@ -522,10 +488,6 @@ public class MobController
 	 @PostMapping(value = "/api/dodajKomentarz/{jezyk}")
 	 public ResponseEntity dodajKomentarz(@PathVariable("jezyk") String jezyk, @RequestBody Komentarz komentarz, UriComponentsBuilder ucBuilder, BindingResult result) 
 	 {
-		 /*System.out.println(komentarz.getKomentarz());
-		 System.out.println(komentarz.getOcena());
-		 System.out.println(komentarz.getIdUzytkownika());
-		 System.out.println(komentarz.getIdPotrawy());*/
 		 new KomentarzValidator().validate(komentarz, result);
 		 if(result.hasErrors())
 		 {
@@ -541,7 +503,6 @@ public class MobController
 			 List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
 			 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			 uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
-			 //uzytkownik	= uzytkownikRepository.findById(komentarz.getIdUzytkownika());
 			 komentarz.setUzytkownik(uzytkownik.get(0));
 			 List<Potrawa> potrawa = new ArrayList<Potrawa>();
 			 potrawa = potrawaRepository.findById(komentarz.getIdPotrawy());
@@ -554,7 +515,7 @@ public class MobController
 	     //dodaje pole MyResponseHeader z wartoscia MyValue do odpowiedzi, cialo odpowiedzi to Hello World
 	 }
 	 
-	 @PostMapping(value = "/api/rejestracja/{jezyk}") //dokonczyc
+	 @PostMapping(value = "/api/rejestracja/{jezyk}")
 	 public ResponseEntity zarejestruj(@PathVariable("jezyk") String jezyk, @RequestBody Uzytkownik uzytkownik, UriComponentsBuilder ucBuilder, BindingResult result) 
 	 {
 		 List<Uzytkownik> listaU = uzytkownikRepository.findByLoginIgnoreCase(uzytkownik.getLogin());
@@ -586,7 +547,37 @@ public class MobController
 			 List<Rola> rola = rolaRepository.findByRola("ROLE_KLIENT");
 			 uzytkownik.setRola(rola.get(0));
 			 uzytkownikRepository.save(uzytkownik);
-			 return ResponseEntity.created(location).header("MyResponseHeader", "MyValue").body("Udana rejestracja");
+			 return ResponseEntity.created(location).header("MyResponseHeader", "MyValue").body(messageSource.getMessage("page.main.UdanaRejestracja", null, new Locale(jezyk)));
 		 }
+	 }
+	 
+	 @RequestMapping(value = "/api/kluczPubliczny", method = RequestMethod.GET)
+	 public ResponseEntity pobierzKlucz()
+	 {
+		 return ResponseEntity.ok().body(publicKey);
+	 }
+	 
+	 @PostMapping(value ="/api/zaplac/{idZamowienia}/{token}/{jezyk}")
+	 public ResponseEntity dokonajPlatnosci(@PathVariable("idZamowienia") int id, @PathVariable("token") String token, @PathVariable("jezyk") String jezyk, UriComponentsBuilder ucBuilder)
+	 {
+		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		 List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
+		 zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, authentication);
+		 ChargeRequest chargeRequest = new ChargeRequest();
+		 chargeRequest.setDescription("Money for order with id = " + id);
+	     chargeRequest.setCurrency("PLN");
+	     chargeRequest.setStripeToken(token);
+	     chargeRequest.setAmount(zamowienie.get(0).getCenaCalkowita());
+	     chargeRequest.setStripeEmail(authentication.getName());
+	     try
+	     {
+	    	 Charge charge = paymentsService.charge(chargeRequest);
+	     }
+	     catch(StripeException ex)
+	     {
+	    	 return ResponseEntity.accepted().body(messageSource.getMessage("page.zamowienia.Blad", null, new Locale(jezyk)));
+	     }
+		 URI location = ucBuilder.path("/api/zamowienie/{id}").buildAndExpand(id).toUri();
+		 return ResponseEntity.created(location).body(messageSource.getMessage("page.zamowienia.Zaplacone", null, new Locale(jezyk)));
 	 }
 }

@@ -64,7 +64,8 @@
 			</a>
 			<div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
 			  <a class="dropdown-item" href="/zamowienia" style="color: grey"> <s:message code="nav.PokazZamowieniaZrealizowane"/></a>
-			  <a class="dropdown-item" href="/zamowieniaAkt" style="color: grey"> <s:message code="nav.PokazZamowieniaAktualne"/></a>	    
+			  <a class="dropdown-item" href="/zamowieniaAkt" style="color: grey"> <s:message code="nav.PokazZamowieniaAktualne"/></a>
+			  <a class="dropdown-item" href="/zamowienie" style="color: grey"> <s:message code="nav.ZlozZamowienie"/></a>
 			</div>   
 	    </li> 
       </sec:authorize>

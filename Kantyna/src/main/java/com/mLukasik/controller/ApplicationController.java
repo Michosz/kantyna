@@ -4,16 +4,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.mLukasik.model.Rola;
 import com.mLukasik.model.Stolik;
+import com.mLukasik.model.ChargeRequest;
 import com.mLukasik.model.Komentarz;
 import com.mLukasik.model.Koszyk;
 import com.mLukasik.model.Parametry;
@@ -31,6 +31,7 @@ import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.StolikRepository;
 import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
+import com.mLukasik.service.StripeService;
 import com.mLukasik.service.ZbiorczyService;
 import com.mLukasik.validator.KomentarzValidator;
 import com.mLukasik.validator.KoszykValidator;
@@ -40,35 +41,22 @@ import com.mLukasik.validator.RodzajPotrawyValidator;
 import com.mLukasik.validator.StolikValidator;
 import com.mLukasik.validator.UzytkownikValidator;
 import com.mLukasik.validator.ZamowienieValidator;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.sql.Time;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import javax.imageio.ImageIO;
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.apache.tomcat.util.http.fileupload.FileUpload;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -100,6 +88,11 @@ public class ApplicationController
 	
 	@Autowired
 	ZbiorczyService zbiorczyService;
+	@Autowired
+	private StripeService paymentsService;
+
+	@Value("${stripe.public.key}")
+	String publicKey;// = "pk_test_RTG24gh5fgeZVWrfZJWBsFnh0041YARzOA";
 	
 	@RequestMapping({"/", "/a", "/b", "/c"})
 	public String Start(Model model, HttpServletRequest request)
@@ -145,11 +138,16 @@ public class ApplicationController
 		return "main";
 	}
 	
-	@RequestMapping("/logowanie")
-	public String Logowanie(Model model, HttpServletRequest request)
+	@RequestMapping(value = "/logowanie", method = RequestMethod.GET)
+	public String Logowanie(Model model, HttpServletRequest request, HttpServletResponse response)
 	{
+		if(request != null)
+		{
+			model.addAttribute("koment", request.getParameter("kom"));
+		}
 		return "logowanie";
 	}
+	
 	
 	@RequestMapping(value = "/rejestracja", method = RequestMethod.GET)
 	public ModelAndView Rejestracja(HttpServletRequest request, Model model)
@@ -187,7 +185,8 @@ public class ApplicationController
 			List<Rola> role = rolaRepository.findByRola("ROLE_KLIENT");
 			uzytkownik.setRola(role.get(0));
 		}
-		uzytkownik.setCzy_aktywny(true);
+		uzytkownik.setCzyAktywny(true);
+		uzytkownik.setKomentarz(" ");
 		uzytkownik.setHaslo(bcp.encode(uzytkownik.getHaslo()));
 		uzytkownikRepository.save(uzytkownik);
 		redir.addAttribute("UdanaRejestracja", 1);
@@ -295,17 +294,8 @@ public class ApplicationController
 	@PostMapping(value = "/zwolnij")
 	public String zwolnijStolik(RedirectAttributes redir, HttpServletRequest request)
 	{
-		boolean parsable = true;
-		int id = 0;
-		try
-	    {
-			id = Integer.parseInt(request.getParameter("par"));
-	    }
-		catch(Exception e)
-		{
-			parsable = false;
-		}
-		if(parsable == true)
+		int id = zbiorczyService.zwrocId(request);
+		if(id != 0)
 		{
 			List<Stolik> listaStolikow = stolikRepository.findByIdStolika(id);
 			listaStolikow.get(0).setCzyJestZajety(false);
@@ -362,17 +352,8 @@ public class ApplicationController
 	@PostMapping(value = "/usunZmenu")
 	public String zmienDostepnoscPotrawy(RedirectAttributes redir, HttpServletRequest request)
 	{
-		boolean parsable = true;
-		int id = 0;
-		try
-	    {
-			id = Integer.parseInt(request.getParameter("par"));
-	    }
-		catch(Exception e)
-		{
-			parsable = false;
-		}
-		if(parsable == true)
+		int id = zbiorczyService.zwrocId(request);
+		if(id != 0)
 		{
 			List<Potrawa> listaP = potrawaRepository.findById(id);
 			if(listaP.get(0).getCzyJestDostepna() == true)
@@ -409,6 +390,7 @@ public class ApplicationController
 					if(zamow.size() > 1)
 					{
 						zamowienie.setCzyZrealizowane(true);
+						zamowienie.setCzyZaplacone(true);
 						zamowienieRepository.save(zamowienie);
 					}
 					else
@@ -416,6 +398,7 @@ public class ApplicationController
 						stolik.setCzyJestZajety(false);
 						stolikRepository.save(stolik);
 						zamowienie.setCzyZrealizowane(true);
+						zamowienie.setCzyZaplacone(true);
 						zamowienieRepository.save(zamowienie);
 					}
 				}
@@ -494,8 +477,9 @@ public class ApplicationController
 	
 	//uwaga co do braku komentarzy, albo disablowac przycisk, albo dorobic argument w funkcji w javascript i na podstawie tego wyswietlic komunikat, bez javascriptu niestety sie nie da
 	@PostMapping(value = "/zamowienie")
-	public String dodajZamowienie(@ModelAttribute("Zamowienie") Zamowienie zamowienie, BindingResult result, RedirectAttributes redir, Model model)
+	public String dodajZamowienie(@ModelAttribute("Zamowienie") Zamowienie zamowienie, BindingResult result, RedirectAttributes redir, Model model, HttpServletRequest request)
 	{
+		System.out.println(zamowienie.getCzyPlaciOdRazu());
 		boolean pusteZamowienie = false;
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		int ilosc = zamowienie.getIloscMiejsc();
@@ -551,6 +535,7 @@ public class ApplicationController
 		if(result.hasErrors())
 		{
 			model.addAttribute("uzytkownik", auth.getName());
+			model.addAttribute("Zamowienie", zamowienie);
 			return "zamowienie";
 		}
 		else
@@ -579,9 +564,18 @@ public class ApplicationController
 			zamowienie.setCzyManagerJeWidzial(false);
 			zamowienie.setDataZam(date);
 			zamowienie.setPotrawy_Zamowienia(lista);
-			zamowienieRepository.save(zamowienie);
-			redir.addAttribute("zamowienieZlozone", 1);
-			return "redirect:/";
+			Zamowienie zam = zamowienieRepository.save(zamowienie);
+			if(zamowienie.getCzyPlaciOdRazu())
+			{
+				HttpSession session = request.getSession(false);
+				session.setAttribute("idZamowienia", zam.getId());
+				return "redirect:/zamowieniaAkt";
+			}
+			else
+			{
+				redir.addAttribute("zamowienieZlozone", 1);
+				return "redirect:/";
+			}
 		}
 	}
 	
@@ -612,50 +606,106 @@ public class ApplicationController
 		return "/zamowienia";
 	}
 	
+	//jesli chcialbym rpzeltumaczyc stripowy formualrz musialbym tak naprawde stworzyc wlasny
+	//rozwiazac jakos placenie od razu przy skladani uzamowienia (mozna redirect 
+	//na strone z zamowieniami i otworzyc - musze zrobic wlasny rpzycisk, bo na ich ta metoda nie dziala
 	@RequestMapping(value = "/zamowieniaAkt", method = RequestMethod.GET)
 	public String pokazZamowieniaAktualne(HttpServletRequest request, Model model)
 	{
+		//<c:remove var="variableName"/>//usuneicie zmiennej z sesji
+		HttpSession session = request.getSession(false);
+		int id = 0;
+		try
+		{
+			id = (int)session.getAttribute("idZamowienia");
+		}
+		catch(Exception ex)
+		{
+			session.setAttribute("idZamowienia", 0);
+		}
 		List<Zamowienie> listaZamowien = new ArrayList<Zamowienie>();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
 		model.addAttribute("uzytkownik", auth.getName());
-		if(authorities.get(0).getAuthority().contains("ROLE_KLIENT"))
-		{
-			listaZamowien = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneFalse(auth.getName());
-		}
-		if(authorities.get(0).getAuthority().contains("ROLE_MANAGER"))
-		{
-			listaZamowien = zamowienieRepository.findByCzyZrealizowaneFalse();
-			List<Zamowienie> listaZamowienNowych = zamowienieRepository.findByCzyManagerJeWidzialFalse();
-			for(Zamowienie z: listaZamowienNowych)
-			{
-				z.setCzyManagerJeWidzial(true);
-				zamowienieRepository.save(z);
-			}
-		}
+		listaZamowien =  zbiorczyService.generujListeZamowien(auth, listaZamowien);
 		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
+		
+		listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
+	    model.addAttribute("stripePublicKey", publicKey);
+	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());
 		model.addAttribute("listaZamowien", listaZamowien);
 		return "/zamowienia";
 	}
+ 
+    @PostMapping("/zaplac")
+    public String charge(ChargeRequest chargeRequest, Model model, HttpServletRequest request, RedirectAttributes redir) throws StripeException
+    {
+    	int id = zbiorczyService.zwrocId(request);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if(id != 0)
+		{	    	
+			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
+			zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, auth);
+	        chargeRequest.setDescription("Money for order with id = " + id);
+	        chargeRequest.setCurrency("PLN");
+	        chargeRequest.setAmount(zamowienie.get(0).getCenaCalkowita());
+	        //system outy sa tylko do testow
+	       /* System.out.println(chargeRequest.getCurrency());
+	        System.out.println(chargeRequest.getAmount());
+	        System.out.println(chargeRequest.getStripeEmail());
+	        System.out.println(chargeRequest.getStripeToken());*/
+	        try
+	        {
+	        	Charge charge = paymentsService.charge(chargeRequest);
+	        }
+	        catch(StripeException ex)
+	        {
+	        	//model = zbiorczyService.generujModelAttributeDlaZamowienAktualnych(model, publicKey, auth);
+	        	redir.addAttribute("blad", 1);
+				return "redirect:/zamowieniaAkt";
+	        }
+	        zamowienie.get(0).setCzyZaplacone(true);
+	        zamowienieRepository.save(zamowienie.get(0));
+	        //String dupa = charge.getStatus(); //chyba bezpiecznej bedzie doczytywac status i jak succeeded to git gud
+	        redir.addAttribute("sukces", 1);
+	        return "redirect:/zamowieniaAkt";
+		}
+		else
+		{
+        	//model = zbiorczyService.generujModelAttributeDlaZamowienAktualnych(model, publicKey, auth);
+        	redir.addAttribute("blad", 1);
+			return "redirect:/zamowieniaAkt";
+		}
+    }
+ 
+   /* @ExceptionHandler(StripeException.class)
+    public String handleError(Model model, StripeException ex) 
+    {
+        //model.addAttribute("error", ex.getMessage());
+        //return "result";
+    	model.addAttribute("blad", 1);
+		List<Zamowienie> listaZamowien = new ArrayList<Zamowienie>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		model.addAttribute("uzytkownik", auth.getName());
+		listaZamowien =  zbiorczyService.generujListeZamowien(auth, listaZamowien);
+		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
+		listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
+	    model.addAttribute("stripePublicKey", publicKey);
+	    model.addAttribute("currency", "PLN");
+		model.addAttribute("iloscRekordow", listaZamowien.size());
+		model.addAttribute("listaZamowien", listaZamowien);
+		return "/zamowienia";
+    }*/
 	
 	@PostMapping(value = "/zatwierdzZamowienie")
 	public String zatwierdz(RedirectAttributes redir, HttpServletRequest request)
 	{
-		boolean parsable = true;
-		int id = 0;
-		try
-	    {
-			id = Integer.parseInt(request.getParameter("par"));
-	    }
-		catch(Exception e)
-		{
-			parsable = false;
-		}
-		if(parsable == true)
+		int id = zbiorczyService.zwrocId(request);
+		if(id != 0)
 		{
 			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
 			zamowienie.get(0).setCzyZrealizowane(true);
+			zamowienie.get(0).setCzyZaplacone(true);
 			zamowienieRepository.save(zamowienie.get(0));
 			Stolik stolik = zamowienie.get(0).getStolik();
 			List<Zamowienie> zamowienia = zamowienieRepository.findByCzyZrealizowaneFalseAndStolikNazwa(stolik.getNazwa());
@@ -776,17 +826,8 @@ public class ApplicationController
 	public String usunZKoszyka(HttpServletRequest request, RedirectAttributes redir)
 	{
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		boolean parsable = true;
-		int id = 0;
-		try
-	    {
-			id = Integer.parseInt(request.getParameter("par"));
-	    }
-		catch(Exception e)
-		{
-			parsable = false;
-		}
-		if(parsable == true)
+		int id = zbiorczyService.zwrocId(request);
+		if(id != 0)
 		{
 			List<Koszyk> koszyk = koszykRepository.findByUzytkownikLoginAndPotrawaId(auth.getName(), id);
 			koszykRepository.delete(koszyk.get(0));
@@ -855,6 +896,8 @@ public class ApplicationController
 			String rola = uzytkownicy.get(i).getRola().getRola();
 			uzytkownicy.get(i).getRola().setRola(rola.replace("ROLE_", ""));
 		}
+		model.addAttribute("Uzytkownik", new Uzytkownik());
+		model.addAttribute("numerUzytk", 0);
 		model.addAttribute("uzytkownik", auth.getName());
 		model.addAttribute("uzytkownicy", uzytkownicy);
 		model.addAttribute("iloscRekordow", uzytkownicy.size());
@@ -917,7 +960,51 @@ public class ApplicationController
 		return "redirect:/";
 	}
 	
-	//moznaby dodac w parametrach telefon i email, tak by bylo w prawdziwej raczej
+	@PostMapping(value = "/zbanuj")
+	public String zbanuj(@Valid @ModelAttribute("Uzytkownik") Uzytkownik uzytkownik, HttpServletRequest request, BindingResult result, RedirectAttributes redir, Model model)
+	{
+		List<Uzytkownik> uzytkownik2 = uzytkownikRepository.findById(uzytkownik.getId());
+		new UzytkownikValidator().walidacjaKomentarza(uzytkownik, result);
+		if(result.hasErrors())
+		{
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			model.addAttribute("uzytkownik", auth.getName());
+			List<Uzytkownik> uzytkownicy = uzytkownikRepository.findByLoginNot(auth.getName());
+			for(int i = 0; i < uzytkownicy.size(); i++)
+			{
+				String rola = uzytkownicy.get(i).getRola().getRola();
+				uzytkownicy.get(i).getRola().setRola(rola.replace("ROLE_", ""));
+			}
+			model.addAttribute("Uzytkownik", uzytkownik);
+			model.addAttribute("numerUzytk", uzytkownik.getId());
+			model.addAttribute("uzytkownicy", uzytkownicy);
+			model.addAttribute("iloscRekordow", uzytkownicy.size());
+			return "listaUzytkownikow";
+		}
+		else
+		{
+			uzytkownik2.get(0).setCzyAktywny(false);
+			uzytkownik2.get(0).setKomentarz(uzytkownik.getKomentarz());
+			redir.addAttribute("zbanowany", 1);
+			uzytkownikRepository.save(uzytkownik2.get(0));
+		}
+		return "redirect:/listaUzytk";
+	}
+	
+	@PostMapping(value = "/odbanuj")
+	public String odbanuj(HttpServletRequest request, RedirectAttributes redir, Model model)
+	{
+		int id = zbiorczyService.zwrocId(request);
+		if(id != 0)
+		{
+			List<Uzytkownik> uzytkownik2 = uzytkownikRepository.findById(id);
+			uzytkownik2.get(0).setCzyAktywny(true);
+			uzytkownik2.get(0).setKomentarz(" ");
+			redir.addAttribute("odbanowany", 1);
+			uzytkownikRepository.save(uzytkownik2.get(0));
+		}
+		return "redirect:/listaUzytk";
+	}
 	
 	//usuwanie promocji o polnocz
 	@Scheduled(cron = "0 0 0 * * ?")

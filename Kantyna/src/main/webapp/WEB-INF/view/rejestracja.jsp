@@ -112,9 +112,17 @@
 				</div>
 			</sec:authorize>
 		
-		<div align="center">
-			<button type="submit" class="btn btn-primary" name=zarejestruj value="Rejestracja"><s:message code="page.rejestracja.Zarejestruj"/></button>
-		</div>
+		<sec:authorize access="hasRole('ANONYMOUS')">
+			<div align="center">
+				<button type="submit" class="btn btn-primary" name=zarejestruj value="Rejestracja"><s:message code="page.rejestracja.Zarejestruj"/></button>
+			</div>
+		</sec:authorize>
+		
+		<sec:authorize access="isAuthenticated() and hasRole('ROLE_MANAGER')">
+			<div align="center">
+				<button type="submit" class="btn btn-primary" name=zarejestruj value="Rejestracja"><s:message code="page.rejestracja.StworzUzytkownika"/></button>
+			</div>
+		</sec:authorize>
 	</form:form>
 	</div>
 </body>

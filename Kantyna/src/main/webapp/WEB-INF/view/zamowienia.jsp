@@ -19,6 +19,9 @@ pageEncoding="UTF-8"%>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 		
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
+	
+					<script src="https://checkout.stripe.com/checkout.js"></script>
+				<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   	<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css'>
 	<style style="text/css">	
 	div#second
@@ -103,15 +106,18 @@ pageEncoding="UTF-8"%>
 <body style="background-color:#d1e1bf">
 	<%@include file="/WEB-INF/menu.incl" %>
 	
-	<!--<c:choose>
-		<c:when test="${param.zwolniony == '1'}">
-			<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.stoliki.StolikZwolniony"/></b></div>
+	<c:choose>
+		<c:when test="${not empty param.sukces}">
+			<c:if test="${param.sukces == '1'}">
+				<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.Zaplacone"/></b></div>
+			</c:if>
 		</c:when>
-	</c:choose>-->
-	
-	<c:if test="${param.zamZatwierdzone == '1'}">
-		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
-	</c:if>
+		<c:when test="${not empty param.blad}">
+			<c:if test="${param.blad == '1'}">
+				<div class="container alert alert-danger mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.Blad"/></b></div>
+			</c:if>
+		</c:when>
+	</c:choose>
 	
 	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed; display: none">
 		<thead>
@@ -123,8 +129,10 @@ pageEncoding="UTF-8"%>
 				<th><s:message code="page.zamowienia.DataZamowienia"/></th>
 				<th><s:message code="page.zamowienie.Czas"/></th>
 				<th><s:message code="page.zamowienia.Stolik"/></th>
+				<th><s:message code="page.zamowienia.CzyOplacone"/></th>
 				<th><s:message code="page.zamowienia.CzyZrealizowane"/></th>
-				<th><s:message code="page.zamowienia.ZamowionePotrawy"/></th>
+				
+				<th style="width: 140px"><s:message code="page.zamowienia.ZamowionePotrawy"/></th>
 			</tr>
 		</thead>
 		<c:forEach items="${listaZamowien}" var="zamowienie">
@@ -133,7 +141,7 @@ pageEncoding="UTF-8"%>
 				<td>
 					<c:out value="${zamowienie.uzytkownik.imie}"/> <c:out value="${zamowienie.uzytkownik.nazwisko}"/>
 				</td>
-				<td>
+				<td style="word-break: break-all">
 					<c:out value="${zamowienie.uzytkownik.login}" />
 				</td>
 			</sec:authorize>
@@ -147,11 +155,68 @@ pageEncoding="UTF-8"%>
 				<c:out value="${zamowienie.stolik.nazwa}" />
 			</td>
 			<td>
+				<c:if test="${not zamowienie.czyZaplacone}">
+				<s:message code="page.main.Nie"/>
+				<sec:authorize access="hasRole('KLIENT')">
+					<form name="checkoutform" action="/zaplac?par=${zamowienie.id}" method="POST" id="checkoutform${zamowienie.id}">
+						<input type="hidden" name="stripeToken" id="stripeToken${zamowienie.id}" />
+						<input type="hidden" name="stripeEmail" id="stripeEmail${zamowienie.id}" />
+					</form>
+					<button class="btn btn-primary" style="white-space: normal; min-width: 100%;" id="customButton${zamowienie.id}">
+						<s:message code="page.zamowienia.Zaplac"/>
+					</button>
+						<script>
+						    var handler = StripeCheckout.configure
+						    ({
+							    key: "${stripePublicKey}",
+							    locale: "${localeCode}",
+							    token: function(token) 
+							    {
+						    	   $("#stripeToken${zamowienie.id}").val(token.id);
+						           $("#stripeEmail${zamowienie.id}").val(token.email);
+							       $("#checkoutform${zamowienie.id}").submit();
+						    	}
+						    });
+
+						    var click_event = document.getElementById("customButton${zamowienie.id}").addEventListener('click', function(e)
+						    {
+							    handler.open
+							    ({
+							        name: "Kantyna",
+							        description: "<s:message code="page.zamowienia.Oplacanie"/>",
+							        amount: "${zamowienie.cenaCalkowita}",
+							        currency: "${currency}",
+							        allowRememberMe: false,
+							        email: "${uzytkownik}"
+							    });
+							    e.preventDefault();
+						    });
+
+				    	    $(window).load(function()
+				    	    {
+				    	    	if(${sessionScope.idZamowienia} != 0)
+								{
+						    		document.getElementById("customButton${sessionScope.idZamowienia}").click();
+								}
+				    		});
+				    	    
+					    	$(window).on('popstate', function() 
+					    	{
+					    		handler.close();
+					    	});
+						</script>
+					</sec:authorize>
+				</c:if>
+				<c:if test="${zamowienie.czyZaplacone}">
+					<s:message code="page.main.Tak"/>
+				</c:if>
+			</td>
+			<td>
 				<c:if test="${zamowienie.czyZrealizowane}">
 					<s:message code="page.main.Tak"/>
 					<sec:authorize access="hasRole('MANAGER')">
 						<form:form id="zatwierdz${zamowienie.id}" class="zmienStatus" action="zatwierdzZamowienie?par=${zamowienie.id}" method="POST" onsubmit="return zatwierdzanie(${zamowienie.id}) ? true : false;">	
-							<button class="btn btn-primary" disabled name=dodaj value="DodajA" style="width: 100%"><s:message code="page.zamowienia.Zrealizuj"/></button>
+							<button class="btn btn-primary" disabled name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.zamowienia.Zrealizuj"/></button>
 						</form:form>	
 					</sec:authorize>	
 				</c:if>
@@ -159,13 +224,13 @@ pageEncoding="UTF-8"%>
 					<s:message code="page.main.Nie"/>
 					<sec:authorize access="hasRole('MANAGER')">
 						<form:form id="zatwierdz${zamowienie.id}" class="zmienStatus" action="zatwierdzZamowienie?par=${zamowienie.id}" method="POST" onsubmit="return zatwierdzanie(${zamowienie.id}) ? true : false;">	
-							<button class="btn btn-primary" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.zamowienia.Zrealizuj"/></button>
+							<button class="btn btn-primary" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.zamowienia.Zrealizuj"/></button>
 						</form:form>	
-					</sec:authorize>	
+					</sec:authorize>
 				</c:if>
 			</td>
 			<td>
-				<button id="potr" type="button" class="btn btn-primary" data-toggle="modal" style="width: 100%" data-target="#potrawy" onclick="wyswietlPotrawy(${zamowienie.id})">
+				<button id="potr${zamowienie.id}" type="button" class="btn btn-primary" data-toggle="modal" style="white-space: normal; min-width: 100%;" data-target="#potrawy" onclick="wyswietlPotrawy(${zamowienie.id})">
 					<s:message code="page.zamowienia.ZamowionePotrawy"/>
 				</button>
 			</td>
@@ -276,9 +341,9 @@ pageEncoding="UTF-8"%>
 			{
 				var table = document.getElementById("zamowienia");
 				stronicowanie();
-				table.style.display = "";
+				table.style.display = "";		
 			});
-		
+			
 				function wyswietlPotrawy(id) 
 				{
 				  var table, tr, td, i, txtValue;

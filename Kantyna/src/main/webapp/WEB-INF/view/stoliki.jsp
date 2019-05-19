@@ -119,7 +119,7 @@ pageEncoding="UTF-8"%>
 				<th><s:message code="page.stoliki.IloscMiejsc"/></th>
 				<th><s:message code="page.stoliki.czyJestZajety"/></th>
 				<sec:authorize access="hasRole('MANAGER')">
-				<th><s:message code="page.stoliki.Przyciski"/></th>
+					<th></th>
 				</sec:authorize>
 			</tr>
 		</thead>
@@ -145,12 +145,12 @@ pageEncoding="UTF-8"%>
 			<td>
 				<c:if test="${stolik.czyJestZajety}">
 					<form:form id="zwolnij" class="zwolnijS" action="zwolnij?par=${stolik.idStolika}" method="POST" onsubmit="return zwalnianie(${stolik.idStolika}) ? true : false;">	
-						<button class="btn btn-primary" name=dodaj value="DodajA" style="width: 100%"><s:message code="page.stoliki.Zwolnij"/></button>
+						<button class="btn btn-primary" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.stoliki.Zwolnij"/></button>
 					</form:form>				
 				</c:if>
 				<c:if test="${not stolik.czyJestZajety}">
 					<form:form id="zwolnij" class="zwolnijS" action="zwolnij?par=${stolik.idStolika}" method="POST" onsubmit="return zwalnianie(${stolik.idStolika}) ? true : false;">	
-						<button class="btn btn-primary" name=dodaj value="DodajA" style="width: 100%" disabled><s:message code="page.stoliki.Zwolnij"/></button>
+						<button class="btn btn-primary" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;" disabled><s:message code="page.stoliki.Zwolnij"/></button>
 					</form:form>	
 				</c:if>
 			</td>
