@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +53,8 @@ import com.mLukasik.validator.UzytkownikValidator;
 import com.mLukasik.validator.ZamowienieValidator;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+
+import okhttp3.Headers;
 
 @RestController
 public class MobController
@@ -405,7 +408,10 @@ public class MobController
 			zamowien = zbiorczyService.policzCeneZamowien(zamowien, authentication);
 			Zamowienie zamowienieId = zamowienieRepository.save(zamowienie);
 			URI location = ucBuilder.path("{id}").buildAndExpand(zamowienieId.getId()).toUri();
-			return ResponseEntity.created(location).header("id", "" + zamowienieId.getId(), "cenaCalkowita", "" + zamowien.get(0).getCenaCalkowita()).body(messageSource.getMessage("api.ZamowienieZlozone", null, new Locale(jezyk)));
+			HttpHeaders headery = new HttpHeaders();//headers("id", "" + zamowienieId.getId(), "cenaCalkowita", "" + zamowien.get(0).getCenaCalkowita())
+			headery.add("id", "" + zamowienie.getId());
+			headery.add("cenaCalkowita", "" + zamowien.get(0).getCenaCalkowita());
+			return ResponseEntity.created(location).headers(headery).body(messageSource.getMessage("api.ZamowienieZlozone", null, new Locale(jezyk)));
 		}
 	}
 	
