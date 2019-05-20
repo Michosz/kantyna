@@ -286,6 +286,7 @@ public class MobController
 		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneFalse(uzytkownik.get(0).getLogin());
+		zamowienia = zbiorczyService.policzCeneZamowien(zamowienia, authentication);
 		return ResponseEntity.ok(zamowienia);
 	}
 	
