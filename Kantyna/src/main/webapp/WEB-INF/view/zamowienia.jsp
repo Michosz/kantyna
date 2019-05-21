@@ -119,6 +119,10 @@ pageEncoding="UTF-8"%>
 		</c:when>
 	</c:choose>
 	
+	<c:if test="${param.zamZatwierdzone == '1'}">
+		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
+	</c:if>
+
 	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed; display: none">
 		<thead>
 			<tr>

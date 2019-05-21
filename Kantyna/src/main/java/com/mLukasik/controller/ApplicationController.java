@@ -720,7 +720,7 @@ public class ApplicationController
 			}
 			redir.addAttribute("zamZatwierdzone", 1);
 		}
-		return "redirect:/zamowienia";
+		return "redirect:/zamowieniaAkt";
 	}
 	
 	@RequestMapping(value = "/nowy-rodzaj", method = RequestMethod.GET)
