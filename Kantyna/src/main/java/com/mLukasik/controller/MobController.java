@@ -584,6 +584,7 @@ public class MobController
 	     {
 	    	 return ResponseEntity.accepted().body(messageSource.getMessage("page.zamowienia.Blad", null, new Locale(jezyk)));
 	     }
+	     zamowienie.get(0).setCzyZaplacone(true);
 		 URI location = ucBuilder.path("/api/zamowienie/{id}").buildAndExpand(id).toUri();
 		 return ResponseEntity.created(location).body(messageSource.getMessage("page.zamowienia.Zaplacone", null, new Locale(jezyk)));
 	 }

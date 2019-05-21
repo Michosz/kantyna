@@ -88,7 +88,7 @@ public class ZamowienieValidator implements Validator
 			{
 				err.rejectValue("czasReal", "error.NieMoznaZamawiacWprzeszlosci");
 			}
-			else if(czas.isBefore(parametry.getGodzinaOtwarcia()) || czas.isAfter(parametry.getGodzinaZamkniecia().minusMinutes(5)) || parametry.getCzyZamkniete() == true)
+			else if(czas.isBefore(parametry.getGodzinaOtwarcia()) || czas.isAfter(parametry.getGodzinaZamkniecia().minusSeconds(parametry.getCoIleZwalniac().toSecondOfDay())) || parametry.getCzyZamkniete() == true)
 			{
 				err.rejectValue("czasReal", "error.ZleGodzinyZamowienia");
 			}
