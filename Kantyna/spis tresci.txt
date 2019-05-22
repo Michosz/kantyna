@@ -1,0 +1,32 @@
+1. Wstep
+1.1 Cel i zakres pracy
+1.2 Zalozenia
+
+2. Wykorzystane technologie i narzedzia
+2.1 Jezyk JAVA
+2.2 Spring
+2.3 Hibernate i JPA
+2.4 JSP
+2.5 Jezyk C#
+2.6 Xamarin Android
+2.7 cos o stripe?
+
+3. Odwzorowanie relacyjno-obiektowe
+3.1 Schemat bazy danych
+3.2 Opis schematu
+3.3 Komunikacja z baza danych
+
+4. Aplikacja internetowa
+4.1 Struktura projektu
+4.2 Spring security
+4.3 Funkcjonalnosc aplikacji
+4.4 Komunikacja z aplikacja mobilna
+
+5. Aplikacja mobilna
+5.1 Struktura projektu
+5.2 Komunikacja z serwerem
+5.3 Funkcjonalnosc aplikacji
+
+6. Podsumowanie i wnioski
+
+7. Bibliografia
