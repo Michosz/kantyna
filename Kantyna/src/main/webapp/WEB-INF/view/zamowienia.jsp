@@ -165,6 +165,7 @@ pageEncoding="UTF-8"%>
 					<form name="checkoutform" action="/zaplac?par=${zamowienie.id}" method="POST" id="checkoutform${zamowienie.id}">
 						<input type="hidden" name="stripeToken" id="stripeToken${zamowienie.id}" />
 						<input type="hidden" name="stripeEmail" id="stripeEmail${zamowienie.id}" />
+						<input type="hidden" value="${zamowienie.id}" name="stripeNum" id="stripeNum${zamowienie.id}" />
 					</form>
 					<button class="btn btn-primary" style="white-space: normal; min-width: 100%;" id="customButton${zamowienie.id}">
 						<s:message code="page.zamowienia.Zaplac"/>
@@ -173,19 +174,20 @@ pageEncoding="UTF-8"%>
 						    var handler = StripeCheckout.configure
 						    ({
 							    key: "${stripePublicKey}",
-							    locale: "${localeCode}",
-							    token: function(token) 
-							    {
-						    	   $("#stripeToken${zamowienie.id}").val(token.id);
-						           $("#stripeEmail${zamowienie.id}").val(token.email);
-							       $("#checkoutform${zamowienie.id}").submit();
-						    	}
+							    locale: "${localeCode}"
+							  
 						    });
 
 						    var click_event = document.getElementById("customButton${zamowienie.id}").addEventListener('click', function(e)
 						    {
 							    handler.open
 							    ({
+						    	  token: function(token) 
+								    {
+							    	   $("#stripeToken${zamowienie.id}").val(token.id);
+							           $("#stripeEmail${zamowienie.id}").val(token.email);
+								       $("#checkoutform${zamowienie.id}").submit();
+							    	},
 							        name: "Kantyna",
 							        description: "<s:message code="page.zamowienia.Oplacanie"/>",
 							        amount: "${zamowienie.cenaCalkowita}",

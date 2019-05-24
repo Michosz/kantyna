@@ -8,6 +8,16 @@ public class ChargeRequest
     private String currency;
     private String stripeEmail;
     private String stripeToken;
+    private int stripeNum;
+    
+    public int getStripeNum()
+    {
+    	return this.stripeNum;
+    }
+    public void setStripeNum(int id)
+    {
+    	this.stripeNum = id;
+    }
     
     public int getAmount()
 	{

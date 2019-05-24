@@ -640,7 +640,8 @@ public class ApplicationController
     @PostMapping("/zaplac")
     public String charge(ChargeRequest chargeRequest, Model model, HttpServletRequest request, RedirectAttributes redir) throws StripeException
     {
-    	int id = zbiorczyService.zwrocId(request);
+    	int id = chargeRequest.getStripeNum();
+    	//int id = zbiorczyService.zwrocId(request);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(id != 0)
 		{	    	
@@ -649,11 +650,6 @@ public class ApplicationController
 	        chargeRequest.setDescription("Money for order with id = " + id);
 	        chargeRequest.setCurrency("PLN");
 	        chargeRequest.setAmount(zamowienie.get(0).getCenaCalkowita());
-	        //system outy sa tylko do testow
-	       /* System.out.println(chargeRequest.getCurrency());
-	        System.out.println(chargeRequest.getAmount());
-	        System.out.println(chargeRequest.getStripeEmail());
-	        System.out.println(chargeRequest.getStripeToken());*/
 	        try
 	        {
 	        	Charge charge = paymentsService.charge(chargeRequest);
