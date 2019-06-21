@@ -1,6 +1,7 @@
 package com.mLukasik.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -31,7 +32,6 @@ import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.StolikRepository;
 import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
-import com.mLukasik.service.StripeService;
 import com.mLukasik.service.ZbiorczyService;
 import com.mLukasik.validator.KomentarzValidator;
 import com.mLukasik.validator.KoszykValidator;
@@ -63,6 +63,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+@Transactional
 @Controller
 public class ApplicationController 
 {
@@ -88,11 +89,8 @@ public class ApplicationController
 	
 	@Autowired
 	ZbiorczyService zbiorczyService;
-	@Autowired
-	private StripeService paymentsService;
-
 	@Value("${stripe.public.key}")
-	String publicKey;// = "pk_test_RTG24gh5fgeZVWrfZJWBsFnh0041YARzOA";
+	String publicKey;
 	
 	@RequestMapping({"/", "/a", "/b", "/c"})
 	public String Start(Model model, HttpServletRequest request)
@@ -390,7 +388,6 @@ public class ApplicationController
 					if(zamow.size() > 1)
 					{
 						zamowienie.setCzyZrealizowane(true);
-						zamowienie.setCzyZaplacone(true);
 						zamowienieRepository.save(zamowienie);
 					}
 					else
@@ -398,7 +395,6 @@ public class ApplicationController
 						stolik.setCzyJestZajety(false);
 						stolikRepository.save(stolik);
 						zamowienie.setCzyZrealizowane(true);
-						zamowienie.setCzyZaplacone(true);
 						zamowienieRepository.save(zamowienie);
 					}
 				}
@@ -479,7 +475,6 @@ public class ApplicationController
 	@PostMapping(value = "/zamowienie")
 	public String dodajZamowienie(@ModelAttribute("Zamowienie") Zamowienie zamowienie, BindingResult result, RedirectAttributes redir, Model model, HttpServletRequest request)
 	{
-		System.out.println(zamowienie.getCzyPlaciOdRazu());
 		boolean pusteZamowienie = false;
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		int ilosc = zamowienie.getIloscMiejsc();
@@ -601,6 +596,9 @@ public class ApplicationController
 			}
 		}
 		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
+		listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
+	    model.addAttribute("stripePublicKey", publicKey);
+	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());
 		model.addAttribute("listaZamowien", listaZamowien);
 		return "/zamowienia";
@@ -640,38 +638,79 @@ public class ApplicationController
     @PostMapping("/zaplac")
     public String charge(ChargeRequest chargeRequest, Model model, HttpServletRequest request, RedirectAttributes redir) throws StripeException
     {
+    	boolean zrealizowane = false;
     	int id = chargeRequest.getStripeNum();
-    	//int id = zbiorczyService.zwrocId(request);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(id != 0)
 		{	    	
 			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
+			zrealizowane = zamowienie.get(0).getCzyZrealizowane();
 			zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, auth);
 	        chargeRequest.setDescription("Money for order with id = " + id);
 	        chargeRequest.setCurrency("PLN");
+	        chargeRequest.setStripeEmail(auth.getName());
 	        chargeRequest.setAmount(zamowienie.get(0).getCenaCalkowita());
 	        try
 	        {
-	        	Charge charge = paymentsService.charge(chargeRequest);
+	        	Charge charge = zbiorczyService.charge(chargeRequest);
 	        }
 	        catch(StripeException ex)
 	        {
-	        	//model = zbiorczyService.generujModelAttributeDlaZamowienAktualnych(model, publicKey, auth);
-	        	redir.addAttribute("blad", 1);
-				return "redirect:/zamowieniaAkt";
+	        	if(zrealizowane)
+	        	{
+		        	redir.addAttribute("blad", 1);
+					return "redirect:/zamowienia";
+	        	}
+	        	else
+	        	{
+		        	redir.addAttribute("blad", 1);
+					return "redirect:/zamowieniaAkt";
+	        	}
 	        }
 	        zamowienie.get(0).setCzyZaplacone(true);
 	        zamowienieRepository.save(zamowienie.get(0));
-	        //String dupa = charge.getStatus(); //chyba bezpiecznej bedzie doczytywac status i jak succeeded to git gud
 	        redir.addAttribute("sukces", 1);
 	        return "redirect:/zamowieniaAkt";
 		}
 		else
 		{
-        	//model = zbiorczyService.generujModelAttributeDlaZamowienAktualnych(model, publicKey, auth);
-        	redir.addAttribute("blad", 1);
-			return "redirect:/zamowieniaAkt";
+			if(zrealizowane)
+			{
+		     	redir.addAttribute("blad", 1);
+				return "redirect:/zamowienia";
+			}
+			else
+			{
+	        	redir.addAttribute("blad", 1);
+				return "redirect:/zamowieniaAkt";
+			}
 		}
+    }
+    
+    @PostMapping("/potwierdzOplate")
+    public String potwierdzOplate(RedirectAttributes redir, HttpServletRequest request)
+    {
+    	List<Zamowienie> zamowienie = new ArrayList<Zamowienie>();
+    	int id = zbiorczyService.zwrocId(request);
+		if(id != 0)
+		{
+			zamowienie = zamowienieRepository.findById(id);
+	    	zamowienie.get(0).setCzyZaplacone(true);
+	    	zamowienieRepository.save(zamowienie.get(0));
+	    	redir.addAttribute("potwierdzenieOplaty", 1);
+		}
+		if(zamowienie.size() > 0)
+		{
+			if(zamowienie.get(0).getCzyZrealizowane())
+			{
+		    	return "redirect:/zamowienia";
+			}
+			else
+			{
+		    	return "redirect:/zamowieniaAkt";
+			}
+		}
+    	return "redirect:/zamowienia";
     }
  
    /* @ExceptionHandler(StripeException.class)
@@ -701,7 +740,6 @@ public class ApplicationController
 		{
 			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
 			zamowienie.get(0).setCzyZrealizowane(true);
-			zamowienie.get(0).setCzyZaplacone(true);
 			zamowienieRepository.save(zamowienie.get(0));
 			Stolik stolik = zamowienie.get(0).getStolik();
 			List<Zamowienie> zamowienia = zamowienieRepository.findByCzyZrealizowaneFalseAndStolikNazwa(stolik.getNazwa());

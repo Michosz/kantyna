@@ -140,6 +140,8 @@ pageEncoding="UTF-8"%>
 				var t = document.createTextNode(i + 1);
 				btn.appendChild(t);
 				btn.className = "btn btn-primary";
+				btn.style.width = '50px';
+				btn.style.height = '50px';
 				btn.onclick = function(){wyswietlRekordy()};
 				buttony.appendChild(btn);
 				if(i > 2 && i < ileStron - 1)
@@ -203,7 +205,6 @@ pageEncoding="UTF-8"%>
 			 	    //widocznosc innych przyciskow
 			 	    var ojciec = e.srcElement.parentNode;
 			 	    var buttony = ojciec.children;
-			 	    console.log(buttony.length);
 			 	    for(j = 0; j < buttony.length; j++)
 			 	    {
 			 	    	console.log(buttony[j].id);
@@ -597,7 +598,7 @@ pageEncoding="UTF-8"%>
 			  <div class="modal-dialog" role="document">
 			    <div class="modal-content">
 			      <div class="modal-header">
-			        <h5 class="modal-title" id="exampleModalLabel2"><s:message code="page.main.Komentarze"/></h5>
+			        <h5 class="modal-title" id="exampleModalLabel2"><s:message code="page.main.Komentarz"/></h5>
 			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			          <span aria-hidden="true">&times;</span>
 			        </button>
@@ -656,7 +657,6 @@ pageEncoding="UTF-8"%>
 			      </div>
 			      <div class="modal-body">
 					<form:form action="a" method="POST" modelAttribute="Koszyk">
-					
 						<div class="form-group row">
 							<label for="Kom" class="col-3 col-form-label"><strong><s:message code="page.zamowienia.Ilosc"/>:</strong></label>
 					   		<div class="col-9">
@@ -687,7 +687,6 @@ pageEncoding="UTF-8"%>
 			      </div>
 			      <div class="modal-body">
 					<form:form action="b" method="POST" modelAttribute="Potrawa">
-					
 						<div class="form-group row">
 							<label for="Kom" class="col-3 col-form-label"><strong><s:message code="page.main.CenaPromocyjna"/>:</strong></label>
 					   		<div class="col-9">

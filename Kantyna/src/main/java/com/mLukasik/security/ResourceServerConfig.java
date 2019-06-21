@@ -30,8 +30,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter
 	{
         http.
         	antMatcher("/api/**")
-        	//.authorizeRequests().antMatchers("/api/parametry").authenticated().and().httpBasic().and().csrf().disable()
-               // antMatcher("/api/**")
         		//.anonymous().disable()
                 .authorizeRequests()
             	.antMatchers("/api/oauth/token").permitAll()
@@ -39,7 +37,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter
             	.antMatchers("/api/oauth/check_token").permitAll()
             	.antMatchers("/api/oauth/confirm_access").permitAll()
             	.antMatchers("/api/oauth/error").permitAll()
-            	//.antMatchers("/api/**").permitAll()
                 .antMatchers("/api/parametry/**").hasRole("KLIENT")
                 .antMatchers("/api/konto/**").hasAnyRole("KLIENT", "MANAGER")
                 .antMatchers("/api/edytuj/**").hasRole("KLIENT")
@@ -55,7 +52,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter
                 .antMatchers("/api/dodajDoKoszyka/**").hasRole("KLIENT")
                 .antMatchers("/api/usunWszystko/**").hasRole("KLIENT")
                 .antMatchers("/api/dodajKomentarz/**").hasRole("KLIENT")
-                .antMatchers("/api/kluczPubliczny").permitAll()//.hasRole("KLIENT")
+                .antMatchers("/api/kluczPubliczny").hasRole("KLIENT")
                 .antMatchers("/api/zaplac/**").hasRole("KLIENT")
                 .antMatchers("/api/rejestracja/**").permitAll()
                 .antMatchers("/api/rodzaje/**").permitAll()

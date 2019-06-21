@@ -4,6 +4,7 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import org.springframework.validation.Errors;
@@ -32,25 +33,26 @@ public class ParametryValidator implements Validator
 		}
 		try
 		{
-			Time godzinaOtwar = new Time(formatter.parse(parametry.getGodzinaO()).getTime());
+			//Time godzinaOtwar = new Time(formatter.parse(parametry.getGodzinaO()).getTime());
+			LocalTime czas = LocalTime.parse(parametry.getGodzinaO());
 		}
-		catch (ParseException e) 
+		catch (Exception e) 
 		{
 			zlyFormatGodzinyO = true;
 		}
 		try
 		{
-			Time godzinaZam  = new Time(formatter.parse(parametry.getGodzinaZ()).getTime());
+			LocalTime czas = LocalTime.parse(parametry.getGodzinaZ());
 		}
-		catch(ParseException e)
+		catch(Exception e)
 		{
 			zlyFormatGodzinyZ = true;
 		}
 		try
 		{
-			Time zwalnianie  = new Time(formatter.parse(parametry.getZwalnianie()).getTime());
+			LocalTime czas = LocalTime.parse(parametry.getZwalnianie());
 		}
-		catch(ParseException e)
+		catch(Exception e)
 		{
 			zlyFormatZwalniania = true;
 		}

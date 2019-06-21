@@ -179,6 +179,8 @@ pageEncoding="UTF-8"%>
 				var t = document.createTextNode(i + 1);
 				btn.appendChild(t);
 				btn.className = "btn btn-primary";
+				btn.style.width = '50px';
+				btn.style.height = '50px';
 				btn.onclick = function(){wyswietlRekordy()};
 				buttony.appendChild(btn);
 				if(i > 2 && i < ileStron - 1)

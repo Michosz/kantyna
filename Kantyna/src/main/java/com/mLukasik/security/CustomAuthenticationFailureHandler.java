@@ -26,7 +26,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 	{
 		String login = "";
 		login = request.getParameter("login");
-		if(uzytkownikRepository==null)
+		if(uzytkownikRepository == null)
 		{
 		    ServletContext servletContext = request.getServletContext();
 		    WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);

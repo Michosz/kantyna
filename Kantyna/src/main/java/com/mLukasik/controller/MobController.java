@@ -45,7 +45,6 @@ import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.StolikRepository;
 import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
-import com.mLukasik.service.StripeService;
 import com.mLukasik.service.ZbiorczyService;
 import com.mLukasik.validator.KomentarzValidator;
 import com.mLukasik.validator.KoszykValidator;
@@ -82,14 +81,11 @@ public class MobController
 	Potrawy_ZamowieniaRepository potrawy_ZamowieniaRepository;
 	@Autowired
 	private MessageSource messageSource;
+	
 	@Autowired
 	ZbiorczyService zbiorczyService;
-	@Autowired
-	private StripeService paymentsService;
-	
 	@Value("${stripe.public.key}")
-	String publicKey;// = "pk_test_RTG24gh5fgeZVWrfZJWBsFnh0041YARzOA";
-	//dopisac metode, ktora sprawdza czy w ciagu pol godziny bedzie czas realziacji naszego zamowienia
+	String publicKey;
 	
 	@RequestMapping(value = "/api/menu", method = RequestMethod.GET)
 	public ResponseEntity menu()
@@ -578,7 +574,7 @@ public class MobController
 	     chargeRequest.setStripeEmail(authentication.getName());
 	     try
 	     {
-	    	 Charge charge = paymentsService.charge(chargeRequest);
+	    	 Charge charge = zbiorczyService.charge(chargeRequest);
 	     }
 	     catch(StripeException ex)
 	     {

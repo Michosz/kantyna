@@ -3,16 +3,22 @@ package com.mLukasik.service;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.transaction.Transactional;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import com.mLukasik.model.ChargeRequest;
 import com.mLukasik.model.Koszyk;
 import com.mLukasik.model.Potrawa;
 import com.mLukasik.model.Potrawy_Zamowienia;
@@ -25,12 +31,18 @@ import com.mLukasik.repository.RodzajPotrawyRepository;
 import com.mLukasik.repository.RolaRepository;
 import com.mLukasik.repository.UzytkownikRepository;
 import com.mLukasik.repository.ZamowienieRepository;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
+
 import javax.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional
 public class ZbiorczyService 
 {
+	@Value("${stripe.secret.key}")
+	String secretKey;
 	@Autowired
 	private RodzajPotrawyRepository rodzajPotrawyRepository;
 	@Autowired
@@ -129,7 +141,7 @@ public class ZbiorczyService
 		{
 			for(int i = 0; i < potrawy.size(); i++)
 			{
-				if((potrawy.get(i).getNazwa().toLowerCase().contains(request.getParameter("nazwa"))))
+				if((potrawy.get(i).getNazwa().toLowerCase().contains(request.getParameter("nazwa").toLowerCase())))
 				{
 					potrawy2.add(potrawy.get(i));
 				}
@@ -286,4 +298,16 @@ public class ZbiorczyService
 		model.addAttribute("listaZamowien", listaZamowien);
 		return model;
 	}
+	
+	 public Charge charge(ChargeRequest chargeRequest) throws AuthenticationException, StripeException 
+     {
+		Stripe.apiKey = secretKey;
+        Map<String, Object> chargeParams = new HashMap<>();
+        chargeParams.put("amount", chargeRequest.getAmount());
+        chargeParams.put("currency", chargeRequest.getCurrency());
+        chargeParams.put("description", chargeRequest.getDescription());
+        chargeParams.put("source", chargeRequest.getStripeToken());
+        chargeParams.put("receipt_email", chargeRequest.getStripeEmail());
+        return Charge.create(chargeParams);
+     }
 }

@@ -19,9 +19,8 @@ pageEncoding="UTF-8"%>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 		
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
-	
-					<script src="https://checkout.stripe.com/checkout.js"></script>
-				<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="https://checkout.stripe.com/checkout.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   	<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css'>
 	<style style="text/css">	
 	div#second
@@ -66,7 +65,7 @@ pageEncoding="UTF-8"%>
 	}
 	
 	.hide
-	 {
+	{
 	    display: none;
 	}
 	
@@ -100,6 +99,29 @@ pageEncoding="UTF-8"%>
 				return false;
 			}})
 		}
+		
+		function potwierdzOplate(id)
+		{
+			swal({ 
+		    title: '<s:message code="page.zamowienia.Oplacanie"/>',   
+		    text: '<s:message code="page.zamowienia.PytanieOplacanie"/>',   
+		    type: "question",   
+		    showCancelButton: true,   
+		    confirmButtonColor: "#DD6B55",   
+		    confirmButtonText: '<s:message code="page.main.Tak"/>',   
+		    cancelButtonText: '<s:message code="page.main.Nie"/>',   
+		    closeOnConfirm: false,   
+		    closeOnCancel: false }).then((result) => {
+			if(result.value)
+			{
+				document.getElementById("potwierdzOplate" + id).submit();
+			}
+			else
+			{
+				swal('<s:message code="page.main.Anulowane"/>'/*, "success"*/);
+				return false;
+			}})
+		}
 	</script>
 </head>
 
@@ -122,6 +144,9 @@ pageEncoding="UTF-8"%>
 	<c:if test="${param.zamZatwierdzone == '1'}">
 		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.ZamZatwierdzone"/></b></div>
 	</c:if>
+	<c:if test="${param.potwierdzenieOplaty == '1'}">
+		<div class="container alert alert-success mt-2 text-center" role="alert" style="width: 70%;"><b><s:message code="page.zamowienia.PotwierdzenieOplaty"/></b></div>
+	</c:if>
 
 	<table class="table table-bordered table-striped table-dark" id="zamowienia" style="table-layout: fixed; display: none">
 		<thead>
@@ -134,8 +159,7 @@ pageEncoding="UTF-8"%>
 				<th><s:message code="page.zamowienie.Czas"/></th>
 				<th><s:message code="page.zamowienia.Stolik"/></th>
 				<th><s:message code="page.zamowienia.CzyOplacone"/></th>
-				<th><s:message code="page.zamowienia.CzyZrealizowane"/></th>
-				
+				<th><s:message code="page.zamowienia.CzyZrealizowane"/></th>		
 				<th style="width: 140px"><s:message code="page.zamowienia.ZamowionePotrawy"/></th>
 			</tr>
 		</thead>
@@ -161,6 +185,11 @@ pageEncoding="UTF-8"%>
 			<td>
 				<c:if test="${not zamowienie.czyZaplacone}">
 				<s:message code="page.main.Nie"/>
+				<sec:authorize access="hasRole('MANAGER')">
+					<form:form id="potwierdzOplate${zamowienie.id}" class="zmienStatus" action="potwierdzOplate?par=${zamowienie.id}" method="POST" onsubmit="return potwierdzOplate(${zamowienie.id}) ? true : false;">	
+						<button class="btn btn-primary" name=dodaj value="DodajA" style="white-space: normal; min-width: 100%;"><s:message code="page.zamowienia.PotwierdzOplate"/></button>
+					</form:form>
+				</sec:authorize>
 				<sec:authorize access="hasRole('KLIENT')">
 					<form name="checkoutform" action="/zaplac?par=${zamowienie.id}" method="POST" id="checkoutform${zamowienie.id}">
 						<input type="hidden" name="stripeToken" id="stripeToken${zamowienie.id}" />
@@ -264,6 +293,8 @@ pageEncoding="UTF-8"%>
 					var t = document.createTextNode(i + 1);
 					btn.appendChild(t);
 					btn.className = "btn btn-primary";
+					btn.style.width = '50px';
+					btn.style.height = '50px';
 					btn.onclick = function(){wyswietlRekordy()};
 					buttony.appendChild(btn);
 					if(i > 2 && i < ileStron - 1)

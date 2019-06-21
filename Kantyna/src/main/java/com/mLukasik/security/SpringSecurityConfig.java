@@ -43,21 +43,20 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
     }
 	
 	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception //prawdopodobnie wypadlaoby to usunac, zeby tylko 
-	//userdetailservice dzialal, ale nie wiem czy wtedy komuniakty o bledach logowania na webowce tez sie jakos nie spierdola
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception
 	{
 	     auth.jdbcAuthentication().usersByUsernameQuery(userQuery).authoritiesByUsernameQuery(rolesQuery)
 	     .dataSource(ds).passwordEncoder(bcp);
 	}
 	
-	@Resource(name = "userService")
+	/*@Resource(name = "userService")
     private UserDetailsService userDetailsService;
 	
 	@Autowired
     public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(bcp);
-    }
+    }*/
 	
 	@Override
 	protected void configure(HttpSecurity httpSec) throws Exception 
@@ -76,7 +75,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter
 		.antMatchers("/zwolnij").hasRole("MANAGER")
 		.antMatchers("/nowa-potrawa").hasRole("MANAGER")
 		.antMatchers("/usunZmenu/**").hasRole("MANAGER")
-		//.antMatchers("/komentarz/**").permitAll()
 		.antMatchers("/dodajKom").hasRole("KLIENT")
 		.antMatchers("/zamowienie").hasRole("KLIENT")
 		.antMatchers("/zamowienia").hasAnyRole("MANAGER", "KLIENT")
