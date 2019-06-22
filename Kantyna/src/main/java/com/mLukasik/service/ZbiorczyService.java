@@ -299,7 +299,7 @@ public class ZbiorczyService
 		return model;
 	}
 	
-	 public Charge charge(ChargeRequest chargeRequest) throws AuthenticationException, StripeException 
+	 public Charge charge(ChargeRequest chargeRequest) throws StripeException 
      {
 		Stripe.apiKey = secretKey;
         Map<String, Object> chargeParams = new HashMap<>();
