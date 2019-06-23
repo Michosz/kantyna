@@ -71,7 +71,7 @@ public class Zamowienie
 	@Transient
 	private String czasReal;
 	
-	@Transient
+	@Column(name = "cena_calkowita")
 	private int cenaCalkowita;
 	
 	@Transient

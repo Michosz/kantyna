@@ -17,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mLukasik.model.ChargeRequest;
 import com.mLukasik.model.Koszyk;
@@ -241,7 +242,27 @@ public class ZbiorczyService
 		return listaZamowien;
 	}
 	
-	public List<Zamowienie> policzCeneZamowien(List<Zamowienie> listaZamowien, Authentication auth)
+	public int policzCeneZamowienia(Zamowienie zamowienie)
+	{
+		double cena = 0;
+		int cenaFinalna = 0;
+		List<Potrawy_Zamowienia> potrawy = zamowienie.getPotrawy_Zamowienia();
+		for(Potrawy_Zamowienia pot: potrawy)
+		{
+			if(pot.getPotrawa().getCzyPromocja())
+			{
+				cena = cena + (pot.getPotrawa().getCenaPromocyjna() * pot.getIlosc());
+			}
+			else
+			{
+				cena = cena + (pot.getPotrawa().getCena() * pot.getIlosc());
+			}
+		}
+		cenaFinalna = (int)(cena * 100);
+		return cenaFinalna;
+	}
+	
+	/*public List<Zamowienie> policzCeneZamowien(List<Zamowienie> listaZamowien, Authentication auth)
 	{
 		double cena = 0;
 		int centy = 0;
@@ -268,7 +289,7 @@ public class ZbiorczyService
 			}
 		}
 		return listaZamowien;
-	}
+	}*/
 	
 	public int zwrocId(HttpServletRequest request) 
 	{
@@ -291,7 +312,7 @@ public class ZbiorczyService
 		model.addAttribute("uzytkownik", auth.getName());
 		listaZamowien =  generujListeZamowien(auth, listaZamowien);
 		listaZamowien = zmianaFormatu3(listaZamowien);
-		listaZamowien = policzCeneZamowien(listaZamowien, auth);
+		//listaZamowien = policzCeneZamowien(listaZamowien, auth);
 	    model.addAttribute("stripePublicKey", publicKey);
 	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());

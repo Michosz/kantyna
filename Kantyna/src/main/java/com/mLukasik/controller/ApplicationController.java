@@ -559,6 +559,8 @@ public class ApplicationController
 			zamowienie.setCzyManagerJeWidzial(false);
 			zamowienie.setDataZam(date);
 			zamowienie.setPotrawy_Zamowienia(lista);
+			int cena = zbiorczyService.policzCeneZamowienia(zamowienie);
+			zamowienie.setCenaCalkowita(cena);
 			Zamowienie zam = zamowienieRepository.save(zamowienie);
 			if(zamowienie.getCzyPlaciOdRazu())
 			{
@@ -596,7 +598,7 @@ public class ApplicationController
 			}
 		}
 		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
-		listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
+		//listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
 	    model.addAttribute("stripePublicKey", publicKey);
 	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());
@@ -610,7 +612,7 @@ public class ApplicationController
 	@RequestMapping(value = "/zamowieniaAkt", method = RequestMethod.GET)
 	public String pokazZamowieniaAktualne(HttpServletRequest request, Model model)
 	{
-		//<c:remove var="variableName"/>//usuneicie zmiennej z sesji
+		//<c:remove var="variableName"/>//usuniecie zmiennej z sesji
 		HttpSession session = request.getSession(false);
 		int id = 0;
 		try
@@ -626,8 +628,7 @@ public class ApplicationController
 		model.addAttribute("uzytkownik", auth.getName());
 		listaZamowien =  zbiorczyService.generujListeZamowien(auth, listaZamowien);
 		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
-		
-		listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
+		//listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
 	    model.addAttribute("stripePublicKey", publicKey);
 	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());
@@ -645,7 +646,7 @@ public class ApplicationController
 		{	    	
 			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
 			zrealizowane = zamowienie.get(0).getCzyZrealizowane();
-			zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, auth);
+			//zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, auth);
 	        chargeRequest.setDescription("Money for order with id = " + id);
 	        chargeRequest.setCurrency("PLN");
 	        chargeRequest.setStripeEmail(auth.getName());
@@ -670,7 +671,14 @@ public class ApplicationController
 	        zamowienie.get(0).setCzyZaplacone(true);
 	        zamowienieRepository.save(zamowienie.get(0));
 	        redir.addAttribute("sukces", 1);
-	        return "redirect:/zamowieniaAkt";
+	        if(zrealizowane)
+        	{
+	        	return "redirect:/zamowienia";
+        	}
+	    	else
+        	{
+				return "redirect:/zamowieniaAkt";
+        	}
 		}
 		else
 		{

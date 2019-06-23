@@ -7,6 +7,7 @@ pageEncoding="UTF-8"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <html>
 <head>
@@ -158,6 +159,7 @@ pageEncoding="UTF-8"%>
 				<th><s:message code="page.zamowienia.DataZamowienia"/></th>
 				<th><s:message code="page.zamowienie.Czas"/></th>
 				<th><s:message code="page.zamowienia.Stolik"/></th>
+				<th><s:message code="page.zamowienia.CenaCal"/></th>
 				<th><s:message code="page.zamowienia.CzyOplacone"/></th>
 				<th><s:message code="page.zamowienia.CzyZrealizowane"/></th>		
 				<th style="width: 140px"><s:message code="page.zamowienia.ZamowionePotrawy"/></th>
@@ -183,6 +185,9 @@ pageEncoding="UTF-8"%>
 				<c:out value="${zamowienie.stolik.nazwa}" />
 			</td>
 			<td>
+				<fmt:formatNumber type="number" minFractionDigits="2" value="${zamowienie.cenaCalkowita/100}"/>
+			</td>
+			<td>
 				<c:if test="${not zamowienie.czyZaplacone}">
 				<s:message code="page.main.Nie"/>
 				<sec:authorize access="hasRole('MANAGER')">
@@ -204,7 +209,6 @@ pageEncoding="UTF-8"%>
 						    ({
 							    key: "${stripePublicKey}",
 							    locale: "${localeCode}"
-							  
 						    });
 
 						    var click_event = document.getElementById("customButton${zamowienie.id}").addEventListener('click', function(e)

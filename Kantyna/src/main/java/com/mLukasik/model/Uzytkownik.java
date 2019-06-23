@@ -36,6 +36,7 @@ public class Uzytkownik
 	@Column(name = "login")
 	private String login;
 
+	@JsonIgnore
 	@Column(name = "haslo")
 	private String haslo;
 	

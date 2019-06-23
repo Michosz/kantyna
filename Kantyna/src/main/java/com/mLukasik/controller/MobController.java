@@ -276,13 +276,11 @@ public class MobController
 	public ResponseEntity zamowieniaAktualne()
 	{
 		List<Uzytkownik> uzytkownik = new ArrayList<Uzytkownik>();
-		//uzytkownik = uzytkownikRepository.findAll();
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
-		
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneFalse(uzytkownik.get(0).getLogin());
-		zamowienia = zbiorczyService.policzCeneZamowien(zamowienia, authentication);
+		//zamowienia = zbiorczyService.policzCeneZamowien(zamowienia, authentication);
 		return ResponseEntity.ok(zamowienia);
 	}
 	
@@ -294,6 +292,7 @@ public class MobController
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneTrue(uzytkownik.get(0).getLogin());
+		//zamowienia = zbiorczyService.policzCeneZamowien(zamowienia, authentication);
 		return ResponseEntity.ok(zamowienia);
 	}
 	
@@ -315,9 +314,9 @@ public class MobController
 		boolean pusteZamowienie = false;
 		int ilosc = zamowienie.getIloscMiejsc();
 		//listaP lub param raczej do usuniecia, sprawdzic pozniej
-		List<Parametry> listaP = parametryRepository.findByIdParametru(1);
-		List<Parametry> param = parametryRepository.findAll();
-		int maxIlosc = ilosc + listaP.get(0).getSzukanieStolika();
+		List<Parametry> param = parametryRepository.findByIdParametru(1);
+		//List<Parametry> listaP = parametryRepository.findAll();
+		int maxIlosc = ilosc + param.get(0).getSzukanieStolika();
 		int iloscStolikow = 0;
 		List<Stolik> listaStolikow = stolikRepository.findByIloscMiejscBetweenAndCzyJestZajetyOrderByIloscMiejscAsc(zamowienie.getIloscMiejsc(), maxIlosc, false);
 		List<Koszyk> koszyk = koszykRepository.findByUzytkownikLogin(uzytkownik.get(0).getLogin());
@@ -363,7 +362,7 @@ public class MobController
 			}
 		}
 
-		new ZamowienieValidator(iloscStolikow, pusteZamowienie, listaP.get(0), koszyk).validate(zamowienie, result);
+		new ZamowienieValidator(iloscStolikow, pusteZamowienie, param.get(0), koszyk).validate(zamowienie, result);
 		if(result.hasErrors())
 		{
 			List<String> bledy = new ArrayList<>();
@@ -402,7 +401,9 @@ public class MobController
 			
 			List<Zamowienie> zamowien = new ArrayList<Zamowienie>();
 			zamowien.add(zamowienie);
-			zamowien = zbiorczyService.policzCeneZamowien(zamowien, authentication);
+			//zamowien = zbiorczyService.policzCeneZamowien(zamowien, authentication);
+			int cena = zbiorczyService.policzCeneZamowienia(zamowienie);
+			zamowienie.setCenaCalkowita(cena);
 			Zamowienie zamowienieId = zamowienieRepository.save(zamowienie);
 			URI location = ucBuilder.path("{id}").buildAndExpand(zamowienieId.getId()).toUri();
 			HttpHeaders headery = new HttpHeaders();//headers("id", "" + zamowienieId.getId(), "cenaCalkowita", "" + zamowien.get(0).getCenaCalkowita())
@@ -565,7 +566,7 @@ public class MobController
 	 {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		 List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
-		 zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, authentication);
+		 //zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, authentication);
 		 ChargeRequest chargeRequest = new ChargeRequest();
 		 chargeRequest.setDescription("Money for order with id = " + id);
 	     chargeRequest.setCurrency("PLN");
