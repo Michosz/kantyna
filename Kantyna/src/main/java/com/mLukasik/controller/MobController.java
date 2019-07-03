@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.mLukasik.model.ChargeRequest;
+import com.mLukasik.model.Oplata;
 import com.mLukasik.model.Komentarz;
 import com.mLukasik.model.Koszyk;
 import com.mLukasik.model.Parametry;
@@ -292,7 +292,6 @@ public class MobController
 		uzytkownik = uzytkownikRepository.findByLogin(authentication.getName());
 		List<Zamowienie> zamowienia = new ArrayList<Zamowienie>();
 		zamowienia = zamowienieRepository.findByUzytkownikLoginAndCzyZrealizowaneTrue(uzytkownik.get(0).getLogin());
-		//zamowienia = zbiorczyService.policzCeneZamowien(zamowienia, authentication);
 		return ResponseEntity.ok(zamowienia);
 	}
 	
@@ -567,21 +566,22 @@ public class MobController
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		 List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
 		 //zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, authentication);
-		 ChargeRequest chargeRequest = new ChargeRequest();
-		 chargeRequest.setDescription("Money for order with id = " + id);
-	     chargeRequest.setCurrency("PLN");
-	     chargeRequest.setStripeToken(token);
-	     chargeRequest.setAmount(zamowienie.get(0).getCenaCalkowita());
-	     chargeRequest.setStripeEmail(authentication.getName());
+		 Oplata oplata = new Oplata();
+		 oplata.setOpis("Money for order with id = " + id);
+		 oplata.setWaluta("PLN");
+		 oplata.setStripeToken(token);
+		 oplata.setSuma(zamowienie.get(0).getCenaCalkowita());
+		 oplata.setStripeEmail(authentication.getName());
 	     try
 	     {
-	    	 Charge charge = zbiorczyService.charge(chargeRequest);
+	    	 Charge charge = zbiorczyService.oplac(oplata);
 	     }
 	     catch(StripeException ex)
 	     {
 	    	 return ResponseEntity.accepted().body(messageSource.getMessage("page.zamowienia.Blad", null, new Locale(jezyk)));
 	     }
 	     zamowienie.get(0).setCzyZaplacone(true);
+	     zamowienieRepository.save(zamowienie.get(0));
 		 URI location = ucBuilder.path("/api/zamowienie/{id}").buildAndExpand(id).toUri();
 		 return ResponseEntity.created(location).body(messageSource.getMessage("page.zamowienia.Zaplacone", null, new Locale(jezyk)));
 	 }

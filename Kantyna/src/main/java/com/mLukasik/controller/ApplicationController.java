@@ -14,9 +14,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.mLukasik.model.Rola;
 import com.mLukasik.model.Stolik;
-import com.mLukasik.model.ChargeRequest;
 import com.mLukasik.model.Komentarz;
 import com.mLukasik.model.Koszyk;
+import com.mLukasik.model.Oplata;
 import com.mLukasik.model.Parametry;
 import com.mLukasik.model.Uzytkownik;
 import com.mLukasik.model.Zamowienie;
@@ -579,6 +579,16 @@ public class ApplicationController
 	@RequestMapping(value = "/zamowienia", method = RequestMethod.GET)
 	public String pokazZamowienia(HttpServletRequest request, Model model)
 	{
+		HttpSession session = request.getSession(false);
+		int id = 0;
+		try
+		{
+			id = (int)session.getAttribute("idZamowienia");
+		}
+		catch(Exception ex)
+		{
+			session.setAttribute("idZamowienia", 0);
+		}
 		List<Zamowienie> listaZamowien = new ArrayList<Zamowienie>();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
@@ -598,7 +608,6 @@ public class ApplicationController
 			}
 		}
 		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
-		//listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
 	    model.addAttribute("stripePublicKey", publicKey);
 	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());
@@ -606,9 +615,6 @@ public class ApplicationController
 		return "/zamowienia";
 	}
 	
-	//jesli chcialbym rpzeltumaczyc stripowy formualrz musialbym tak naprawde stworzyc wlasny
-	//rozwiazac jakos placenie od razu przy skladani uzamowienia (mozna redirect 
-	//na strone z zamowieniami i otworzyc - musze zrobic wlasny rpzycisk, bo na ich ta metoda nie dziala
 	@RequestMapping(value = "/zamowieniaAkt", method = RequestMethod.GET)
 	public String pokazZamowieniaAktualne(HttpServletRequest request, Model model)
 	{
@@ -628,7 +634,6 @@ public class ApplicationController
 		model.addAttribute("uzytkownik", auth.getName());
 		listaZamowien =  zbiorczyService.generujListeZamowien(auth, listaZamowien);
 		listaZamowien = zbiorczyService.zmianaFormatu3(listaZamowien);
-		//listaZamowien = zbiorczyService.policzCeneZamowien(listaZamowien, auth);
 	    model.addAttribute("stripePublicKey", publicKey);
 	    model.addAttribute("currency", "PLN");
 		model.addAttribute("iloscRekordow", listaZamowien.size());
@@ -637,23 +642,23 @@ public class ApplicationController
 	}
  
     @PostMapping("/zaplac")
-    public String charge(ChargeRequest chargeRequest, Model model, HttpServletRequest request, RedirectAttributes redir) throws StripeException
+    public String charge(Oplata oplata, Model model, HttpServletRequest request, RedirectAttributes redir) throws StripeException
     {
     	boolean zrealizowane = false;
-    	int id = chargeRequest.getStripeNum();
+    	int id = oplata.getStripeNum();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(id != 0)
 		{	    	
 			List<Zamowienie> zamowienie = zamowienieRepository.findById(id);
 			zrealizowane = zamowienie.get(0).getCzyZrealizowane();
 			//zamowienie = zbiorczyService.policzCeneZamowien(zamowienie, auth);
-	        chargeRequest.setDescription("Money for order with id = " + id);
-	        chargeRequest.setCurrency("PLN");
-	        chargeRequest.setStripeEmail(auth.getName());
-	        chargeRequest.setAmount(zamowienie.get(0).getCenaCalkowita());
+			oplata.setOpis("Money for order with id = " + id);
+			oplata.setWaluta("PLN");
+			oplata.setStripeEmail(auth.getName());
+			oplata.setSuma(zamowienie.get(0).getCenaCalkowita());
 	        try
 	        {
-	        	Charge charge = zbiorczyService.charge(chargeRequest);
+	        	Charge charge = zbiorczyService.oplac(oplata);
 	        }
 	        catch(StripeException ex)
 	        {

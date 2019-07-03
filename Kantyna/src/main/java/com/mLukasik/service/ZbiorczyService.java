@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.transaction.Transactional;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.mLukasik.model.ChargeRequest;
 import com.mLukasik.model.Koszyk;
+import com.mLukasik.model.Oplata;
 import com.mLukasik.model.Potrawa;
 import com.mLukasik.model.Potrawy_Zamowienia;
 import com.mLukasik.model.RodzajPotrawy;
@@ -320,15 +319,15 @@ public class ZbiorczyService
 		return model;
 	}
 	
-	 public Charge charge(ChargeRequest chargeRequest) throws StripeException 
-     {
+	public Charge oplac(Oplata oplata) throws StripeException 
+    {
 		Stripe.apiKey = secretKey;
-        Map<String, Object> chargeParams = new HashMap<>();
-        chargeParams.put("amount", chargeRequest.getAmount());
-        chargeParams.put("currency", chargeRequest.getCurrency());
-        chargeParams.put("description", chargeRequest.getDescription());
-        chargeParams.put("source", chargeRequest.getStripeToken());
-        chargeParams.put("receipt_email", chargeRequest.getStripeEmail());
-        return Charge.create(chargeParams);
-     }
+		Map<String, Object> chargeParams = new HashMap<>();
+		chargeParams.put("amount", oplata.getSuma());
+		chargeParams.put("currency", oplata.getWaluta());
+		chargeParams.put("description", oplata.getOpis());
+		chargeParams.put("source", oplata.getStripeToken());
+		chargeParams.put("receipt_email", oplata.getStripeEmail());
+		return Charge.create(chargeParams);
+    }
 }
